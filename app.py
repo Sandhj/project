@@ -174,17 +174,6 @@ def create_account():
             # Jika berhasil, outputnya akan ditangkap oleh result.stdout
             print(f"Script output: {result.stdout.strip()}")
 
-            # Kirim notifikasi ke bot Telegram admin
-            telegram_token = "7360190308:AAH79nXyUiU4TRscBtYRLg14WVNfi1q1T1M"
-            chat_id = "576495165"
-            message = f"""
-            <b>New Account Created</b>
-            <b>Protocol:</b> {protocol}
-            <b>Username:</b> {username}
-            <b>Expired:</b> {expired} days
-            """
-            send_telegram_notification(telegram_token, chat_id, message)
-
         except subprocess.CalledProcessError as e:
             # Tangkap kesalahan jika terjadi error pada eksekusi skrip shell
             print(f"Error: {e.stderr.strip()}")
