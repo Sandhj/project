@@ -19,8 +19,8 @@ def init_db():
         conn.commit()
 
 # Home route
-@app.route("/")
-def home():
+@app.route("/dashboard")
+def dashboard():
     if "username" in session:
         username = session["username"]
         with sqlite3.connect("users.db") as conn:
@@ -42,7 +42,7 @@ def login():
             user = cursor.fetchone()
         if user:
             session["username"] = username
-            return redirect(url_for("home"))
+            return redirect(url_for("dashboard"))
         else:
             flash("Invalid username or password", "danger")
     return render_template("login.html")
