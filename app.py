@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 import sqlite3
 import os
 import subprocess
-from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -17,14 +16,6 @@ def init_db():
                 username TEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL,
                 balance REAL DEFAULT 0.0
-            )
-        """)
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS results (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT NOT NULL,
-                expired DATE NOT NULL,
-                output TEXT NOT NULL
             )
         """)
         conn.commit()
@@ -209,71 +200,19 @@ def create_account():
 
 @app.route('/result')
 def result():
-    # Ambil data dari URL
+    # Ambil data yang diterima dari URL dan tampilkan di result.html
     username = request.args.get('username')
-    expired = request.args.get('expired')  # Expired dalam string (format awal dari form)
+    expired = request.args.get('expired')
     output = request.args.get('output')
 
-    # Validasi dan pastikan format tanggal expired
-    try:
-        # Ubah expired ke format datetime
-        expired_date = datetime.strptime(expired, '%Y-%m-%d')
-        expired_str = expired_date.strftime('%Y-%m-%d')  # Format ulang ke 'YYYY-MM-DD'
-    except ValueError:
-        flash("Invalid date format for expired.", "danger")
-        return redirect(url_for('index_guest'))
-
-    # Simpan ke database
-    with sqlite3.connect("users.db") as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO results (username, expired, output)
-            VALUES (?, ?, ?)
-        """, (username, expired_str, output))
-        conn.commit()
-
-    # Render halaman hasil
+    # Kembalikan data ke halaman result.html tanpa WhatsApp link
     return render_template(
         'result.html',
         username=username,
-        expired=expired_str,
+        expired=expired,
         output=output
     )
-
-
-@app.route('/see_result')
-def see_result():
-    # Pastikan pengguna sudah login
-    if 'username' not in session:
-        flash("You need to be logged in to see your results.", "danger")
-        return redirect(url_for("login"))
-
-    # Ambil username dari sesi
-    logged_in_user = session["username"]
-
-    # Ambil tanggal hari ini
-    today = datetime.now()
-
-    # Ambil semua hasil dari database sesuai dengan username dan hapus data lebih dari 5 hari setelah expired
-    with sqlite3.connect("users.db") as conn:
-        cursor = conn.cursor()
-
-        # Hapus data yang sudah lebih dari 5 hari sejak expired
-        cursor.execute("""
-            DELETE FROM results WHERE julianday(?) - julianday(expired) > 5
-        """, (today.strftime('%Y-%m-%d'),))
-        conn.commit()
-
-        # Ambil data sesuai username di sesi dan yang belum dihapus
-        cursor.execute("""
-            SELECT username, expired, output 
-            FROM results 
-            WHERE username = ? 
-        """, (logged_in_user,))
-        results = cursor.fetchall()
-
-    # Render halaman untuk melihat hasil
-    return render_template('see_result.html', results=results, username=logged_in_user)
+    
 
 # Logout route
 @app.route("/logout")
