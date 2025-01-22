@@ -18,11 +18,19 @@ def init_db():
         """)
         conn.commit()
 
-@app.route("/home", methods=["GET"])
-def home():
-    return render_template("home.html")
+# Route: Home/Dashboard
+@app.route("/")
+def dashboard():
+    if "username" in session:
+        username = session["username"]
+        with sqlite3.connect("users.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT balance FROM users WHERE username = ?", (username,))
+            balance = cursor.fetchone()[0]
+        return render_template("dashboard.html", username=username, balance=balance)
+    return redirect(url_for("login"))
 
-# Login route
+# Route: Login
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -34,12 +42,12 @@ def login():
             user = cursor.fetchone()
         if user:
             session["username"] = username
-            return render_template("dashboard.html")
+            return redirect(url_for("dashboard"))
         else:
-            flash("Invalid username or password", "danger")
+            flash("Invalid username or password.", "danger")
     return render_template("login.html")
 
-# Register route
+# Route: Register
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -50,13 +58,13 @@ def register():
             try:
                 cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
                 conn.commit()
-                flash("Registration successful. Please login.", "success")
+                flash("Registration successful! Please log in.", "success")
                 return redirect(url_for("login"))
             except sqlite3.IntegrityError:
                 flash("Username already exists. Try a different one.", "danger")
     return render_template("register.html")
 
-# Add balance route
+# Route: Add Balance
 @app.route("/add_balance", methods=["GET", "POST"])
 def add_balance():
     if "username" not in session:
@@ -79,13 +87,13 @@ def add_balance():
                 new_balance = user[3] + float(balance_to_add)  # user[3] is the current balance
                 cursor.execute("UPDATE users SET balance = ? WHERE username = ?", (new_balance, username))
                 conn.commit()
-                flash(f"Successfully added ${balance_to_add} to {username}'s account.", "success")
+                flash(f"Successfully added Rp{balance_to_add} to {username}'s account.", "success")
             else:
                 flash("User not found. Please check the username.", "danger")
 
     return render_template("add_balance.html")
 
-# Logout route
+# Route: Logout
 @app.route("/logout")
 def logout():
     session.pop("username", None)
