@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>See Results</title>
+</head>
+<body>
+    <h1>All Results</h1>
+    <table border="1">
+        <tr>
+            <th>Username</th>
+            <th>Expired</th>
+            <th>Rincian</th>
+        </tr>
+        {% for result in results %}
+        <tr>
+            <td>{{ result[0] }}</td>
+            <td>{{ result[1] }}</td>
+            <td><pre>{{ result[2] }}</pre></td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="{{ url_for('index_guest') }}">Back to Home</a>
+</body>
+</html>
