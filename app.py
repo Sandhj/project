@@ -18,6 +18,10 @@ def init_db():
         """)
         conn.commit()
 
+@app.route("/index_guest")
+def index_guest():
+    return render_template("index.html")
+
 # Home route
 @app.route("/dashboard")
 def dashboard():
@@ -42,7 +46,7 @@ def login():
             user = cursor.fetchone()
         if user:
             session["username"] = username
-            return redirect(url_for("dashboard"))
+            return redirect(url_for("index_guest"))
         else:
             flash("Invalid username or password", "danger")
     return render_template("login.html")
