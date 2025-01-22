@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 import sqlite3
 import os
 import subprocess
@@ -18,6 +18,13 @@ def init_db():
                 balance REAL DEFAULT 0.0
             )
         """)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS packages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT UNIQUE NOT NULL,
+                detail TEXT NOT NULL
+            )
+        ''')
         conn.commit()
 
 @app.route("/index_guest")
@@ -320,6 +327,82 @@ def result():
         output=output
     )
     
+
+# ------------------ Bagian Fungsi Xl ---------------------
+@app.route('/listxl')
+def listtxl():
+    """Halaman admin."""
+    return render_template('listxl.html')
+
+@app.route('/get_packages', methods=['GET'])
+def get_packages():
+    """Mengambil semua data paket dari database."""
+    with sqlite3.connect(DB_NAME) as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT id, name, detail FROM packages')
+        packages = [{'id': row[0], 'name': row[1], 'detail': row[2]} for row in cursor.fetchall()]
+    return jsonify(packages), 200
+
+@app.route('/add_package', methods=['POST'])
+def add_package():
+    """Menambahkan paket baru ke database."""
+    if not request.is_json:
+        return jsonify({'error': 'Permintaan harus menggunakan JSON!'}), 400
+
+    data = request.get_json()
+    name = data.get('name')
+    detail = data.get('detail')
+
+    if not name or not detail:
+        return jsonify({'error': 'Nama dan detail paket wajib diisi!'}), 400
+
+    try:
+        with sqlite3.connect(DB_NAME) as conn:
+            cursor = conn.cursor()
+            cursor.execute('INSERT INTO packages (name, detail) VALUES (?, ?)', (name, detail))
+            conn.commit()
+        return jsonify({'message': 'Paket berhasil ditambahkan!'}), 201
+    except sqlite3.IntegrityError:
+        return jsonify({'error': 'Paket dengan nama ini sudah ada!'}), 400
+
+@app.route('/update_package/<string:package_name>', methods=['PUT'])
+def update_package(package_name):
+    """Memperbarui paket yang ada di database."""
+    if not request.is_json:
+        return jsonify({'error': 'Permintaan harus menggunakan JSON!'}), 400
+
+    data = request.get_json()
+    new_name = data.get('name')
+    new_detail = data.get('detail')
+
+    if not new_name or not new_detail:
+        return jsonify({'error': 'Nama dan detail paket wajib diisi!'}), 400
+
+    with sqlite3.connect(DB_NAME) as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT id FROM packages WHERE name = ?', (package_name,))
+        package = cursor.fetchone()
+        if not package:
+            return jsonify({'error': 'Paket tidak ditemukan!'}), 404
+
+        try:
+            cursor.execute('UPDATE packages SET name = ?, detail = ? WHERE name = ?', (new_name, new_detail, package_name))
+            conn.commit()
+            return jsonify({'message': 'Paket berhasil diperbarui!'}), 200
+        except sqlite3.IntegrityError:
+            return jsonify({'error': 'Paket dengan nama baru ini sudah ada!'}), 400
+
+@app.route('/delete_package/<string:package_name>', methods=['DELETE'])
+def delete_package(package_name):
+    """Menghapus paket dari database."""
+    with sqlite3.connect(DB_NAME) as conn:
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM packages WHERE name = ?', (package_name,))
+        conn.commit()
+        if cursor.rowcount == 0:
+            return jsonify({'error': 'Paket tidak ditemukan!'}), 404
+    return jsonify({'message': 'Paket berhasil dihapus!'}), 200
+
 
 # Logout route
 @app.route("/logout")
