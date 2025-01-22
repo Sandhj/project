@@ -3,179 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sidebar with Icons</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Arial', sans-serif;
             margin: 0;
-            overflow: hidden;
-        }
-
-        /* Top bar */
-        .top-bar {
-            height: 70px;
-            width: 90%;
-            background-color: #ffffff;
-            color: #007bff;
-            display: flex;
-            align-items: center; 
-            justify-content: space-between; 
-            padding: 0 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            position: relative;
-            z-index: 10;
-        }
-
-        .menu-toggle {
-            font-size: 25px;
-            cursor: pointer;
-            margin-right: auto;
-            transition: transform 0.3s;
-            color: #000000;
-        }
-        .top-bar span:last-child {
-            font-weight: bold; /* Membuat teks bold */
-            color: #000000
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 200px;
-            height: 100vh;
+            padding: 0;
             background-color: #f8f9fa;
-            color: #000000;
-            position: fixed;
-            left: -200px;
-            top: 0;
-            z-index: 15;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+        }
+
+        .dashboard-container {
+            width: 90%;
+            max-width: 700px;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            padding-top: 35px;
-            border-right: 1px solid #ddd;
-            transition: transform 0.3s ease-in-out;
+            gap: 20px;
         }
 
-        .sidebar.visible {
-            transform: translateX(200px);
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
         }
 
-        .sidebar a {
-            display: flex;
-            align-items: center;
-            color: #333;
-            text-decoration: none;
-            padding: 12px 20px;
-            font-size: 16px;
-            font-weight: 500;
+        .card {
+            background: #f9f9f9;
             border-radius: 8px;
-            margin: 10px 15px;
-            transition: all 0.2s ease-in-out;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        .sidebar a i {
-            margin-right: 10px;
-            font-size: 18px;
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
         }
 
-        .sidebar a:hover {
-            background-color: #007bff;
-            color: #fff;
+        .card i {
+            font-size: 30px;
+            color: #3498db;
+            margin-bottom: 10px;
         }
 
-        /* Blur background overlay */
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            z-index: 10;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease-in-out;
+        .card h3 {
+            margin: 10px 0 5px;
+            font-size: 20px;
+            color: #34495e;
         }
 
-        .overlay.active {
-            opacity: 1;
-            pointer-events: auto;
+        .card p {
+            font-size: 20px;
+            color: #7f8c8d;
         }
 
-        /* Main content */
-        .content {
-            height: calc(100vh - 70px);
-            overflow: hidden;
+        /* Information Box */
+        .info-box {
+            background: #ecf0f1;
+            border-left: 5px solid #3498db;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
+        .info-box h3 {
+            margin: 0 0 10px;
+            font-size: 16px;
+            color: #2c3e50;
         }
 
-        .menu-toggle.rotate {
-            transform: rotate(90deg);
+        .info-box p {
+            margin: 0;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        /* Footer */
+        .dashboard-footer {
+            text-align: center;
+            margin-top: 400px;
+            font-size: 12px;
+            color: #95a5a6;
+        }
+
+        /* Responsiveness */
+        @media (max-width: 600px) {
+            .card i {
+                font-size: 25px;
+            }
+            .card h3 {
+                font-size: 14px;
+            }
+            .card p {
+                font-size: 12px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Top Bar -->
-    <div class="top-bar">
-        <span class="menu-toggle">&#9776;</span>
-        <span>SANSTORE.</span>
+    <div class="dashboard-container">
+        <!-- Cards -->
+        <div class="card-container">
+            <div class="card">
+                <i class="fas fa-user" aria-label="User Icon"></i>
+                <h3>Username</h3>
+                <p>{{ username }}</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-wallet" aria-label="Wallet Icon"></i>
+                <h3>Saldo</h3>
+                <p><strong>Rp{{ balance }}</strong></p>
+            </div>
+        </div>
+
+        <!-- Information Box -->
+        <div class="info-box">
+            <h3>Informasi Penting</h3>
+            <p>Pastikan untuk memeriksa saldo Anda secara berkala dan laporkan jika ada aktivitas yang mencurigakan.</p>
+        </div>
+
+        <!-- Footer -->
+        <div class="dashboard-footer">
+            <p>&copy; 2025 Your Company. All Rights Reserved.</p>
+        </div>
     </div>
-
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <a href="home.html" target="content-frame">
-            <i class="fas fa-home"></i> Home
-        </a>
-        <a href="account.html" target="content-frame">
-            <i class="fas fa-user"></i> Akun Saya
-        </a>
-        <a href="create.html" target="content-frame">
-            <i class="fas fa-network-wired"></i> Buat VPN
-        </a>
-        <a href="extend.html" target="content-frame">
-            <i class="fas fa-clock"></i> Perpanjang VPN
-        </a>
-        <a href="tembak.html" target="content-frame">
-            <i class="fas fa-bolt"></i> Tembak XL
-        </a>
-    </div>
-
-    <!-- Overlay Background -->
-    <div class="overlay"></div>
-
-    <!-- Main Content -->
-    <div class="content">
-        <iframe id="content-frame" name="content-frame" src="home.html"></iframe>
-    </div>
-
-    <script>
-        const menuToggle = document.querySelector('.menu-toggle');
-        const sidebar = document.querySelector('.sidebar');
-        const overlay = document.querySelector('.overlay');
-
-        // Toggle Sidebar Functionality
-        menuToggle.addEventListener('click', () => {
-            const isVisible = sidebar.classList.contains('visible');
-            sidebar.classList.toggle('visible');
-            overlay.classList.toggle('active');
-            menuToggle.classList.toggle('rotate');
-            document.body.style.overflow = isVisible ? 'auto' : 'hidden';
-        });
-
-        // Close Sidebar when clicking on overlay
-        overlay.addEventListener('click', () => {
-            sidebar.classList.remove('visible');
-            overlay.classList.remove('active');
-            menuToggle.classList.remove('rotate');
-            document.body.style.overflow = 'auto';
-        });
-    </script>
 </body>
 </html>
