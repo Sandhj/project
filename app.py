@@ -22,12 +22,18 @@ def init_db():
 @app.route("/")
 def dashboard():
     if "username" in session:
+        return render_template("dashboard.html")  # Load the new main dashboard
+    return redirect(url_for("login"))
+    
+@app.route("/home")
+def home():
+    if "username" in session:
         username = session["username"]
         with sqlite3.connect("users.db") as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT balance FROM users WHERE username = ?", (username,))
             balance = cursor.fetchone()[0]
-        return render_template("dashboard.html", username=username, balance=balance)
+        return render_template("home.html", username=username, balance=balance)  # Old dashboard content
     return redirect(url_for("login"))
 
 # Route: Login
