@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+        }
+
+        .dashboard-container {
+            width: 90%;
+            max-width: 700px;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .card {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .card i {
+            font-size: 30px;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+
+        .card h3 {
+            margin: 10px 0 5px;
+            font-size: 20px;
+            color: #34495e;
+        }
+
+        .card p {
+            font-size: 20px;
+            color: #7f8c8d;
+        }
+
+        /* Information Box */
+        .info-box {
+            background: #ecf0f1;
+            border-left: 5px solid #3498db;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-box h3 {
+            margin: 0 0 10px;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+
+        .info-box p {
+            margin: 0;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        /* Footer */
+        .dashboard-footer {
+            text-align: center;
+            margin-top: 400px;
+            font-size: 12px;
+            color: #95a5a6;
+        }
+
+        /* Responsiveness */
+        @media (max-width: 600px) {
+            .card i {
+                font-size: 25px;
+            }
+            .card h3 {
+                font-size: 14px;
+            }
+            .card p {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Cards -->
+        <div class="card-container">
+            <div class="card">
+                <i class="fas fa-user" aria-label="User Icon"></i>
+                <h3>Username</h3>
+                <p>{{ username }}</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-wallet" aria-label="Wallet Icon"></i>
+                <h3>Saldo</h3>
+                <p><strong>Rp{{ balance }}</strong></p>
+            </div>
+        </div>
+
+        <!-- Information Box -->
+        <div class="info-box">
+            <h3>Informasi Penting</h3>
+            <p>Pastikan untuk memeriksa saldo Anda secara berkala dan laporkan jika ada aktivitas yang mencurigakan.</p>
+        </div>
+
+        <!-- Footer -->
+        <div class="dashboard-footer">
+            <p>&copy; 2025 Your Company. All Rights Reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
