@@ -18,17 +18,9 @@ def init_db():
         """)
         conn.commit()
 
-# Home route
-@app.route("/")
+@app.route("/home", methods=["GET"])
 def home():
-    if "username" in session:
-        username = session["username"]
-        with sqlite3.connect("users.db") as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT balance FROM users WHERE username = ?", (username,))
-            balance = cursor.fetchone()[0]
-        return render_template("dashboard.html", username=username, balance=balance)
-    return redirect(url_for("login"))
+    return render_template("home.html")
 
 # Login route
 @app.route("/login", methods=["GET", "POST"])
@@ -42,7 +34,7 @@ def login():
             user = cursor.fetchone()
         if user:
             session["username"] = username
-            return redirect(url_for("home"))
+            return render_template("dashboard.html")
         else:
             flash("Invalid username or password", "danger")
     return render_template("login.html")
