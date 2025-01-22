@@ -198,6 +198,105 @@ def create_account():
         # Mengalihkan ke halaman result
         return redirect(url_for('result', username=username, expired=expired, output=output))
 
+@app.route('/renew_temp')
+def renew_temp():
+    return render_template("renew.html")
+    
+@app.route('/renew', methods=['POST'])
+def renew_account():
+    if request.method == 'POST':
+        # Ambil data dari form
+        protocol = request.form['protocol']
+        device = request.form['device']
+        username = request.form['username']
+        expired = request.form['expired']
+
+        # Pastikan ada sesi login
+        if 'username' not in session:
+            flash("You need to be logged in to create a VPN account.", "danger")
+            return redirect(url_for("login"))
+
+        logged_in_user = session["username"]
+
+        # Ambil data pengguna dari database berdasarkan sesi login
+        with sqlite3.connect("users.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT balance FROM users WHERE username = ?", (logged_in_user,))
+            user_data = cursor.fetchone()
+            
+            if not user_data:
+                flash("User not found in database.", "danger")
+                return redirect(url_for("login"))
+
+            balance = user_data[0]
+
+        # Tentukan biaya pembuatan akun VPN berdasarkan nilai dari device
+        if device == "stb":
+            vpn_creation_cost = 8000
+        elif device == "hp":
+            vpn_creation_cost = 4000
+        else:
+            vpn_creation_cost = 0  # Anda bisa menambahkan biaya default jika diperlukan
+
+        # Pastikan saldo cukup
+        if balance < vpn_creation_cost:
+            flash("Saldo anda tidak mencukupi untuk transaksi ini.", "danger")
+            return redirect(url_for("create_temp"))
+
+        # Kurangi saldo pengguna
+        new_balance = balance - vpn_creation_cost
+
+        # Update saldo di database
+        with sqlite3.connect("users.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("UPDATE users SET balance = ? WHERE username = ?", (new_balance, logged_in_user))
+            conn.commit()
+
+        # Debugging: Log data yang diterima dari form
+        print(f"Received data - Protocol: {protocol}, Device: {device}, Username: {username}, Expired: {expired}")
+
+        # Menjalankan skrip shell dengan input dari user
+        try:
+            # Debugging: Log sebelum menjalankan skrip shell
+            print(f"Running script for protocol: {protocol} with username: {username} and expired: {expired}")
+
+            # Menjalankan skrip shell dengan memberikan input interaktif (username dan expired)
+            result = subprocess.run(
+                [f"/usr/bin/create_{protocol}"],  # Skrip untuk protokol (vmess, vless, trojan)
+                input=f"{username}\n{expired}\n",  # Memberikan input username dan expired
+                text=True,
+                capture_output=True,
+                check=True
+            )
+            
+            # Jika berhasil, outputnya akan ditangkap oleh result.stdout
+            print(f"Script output: {result.stdout.strip()}")
+
+        except subprocess.CalledProcessError as e:
+            # Tangkap kesalahan jika terjadi error pada eksekusi skrip shell
+            print(f"Error: {e.stderr.strip()}")
+            output = f"Error: {e.stderr.strip()}"
+            return render_template(
+                'result.html',
+                username=username,
+                expired=expired,
+                protocol=protocol,
+                output=output
+            )
+
+        # Membaca file output yang dihasilkan oleh skrip shell
+        output_file = f"/root/project/{username}_output.txt"
+        if os.path.exists(output_file):
+            with open(output_file, 'r') as file:
+                output = file.read()
+
+            # Menghapus file output setelah dibaca
+            os.remove(output_file)
+
+        # Mengalihkan ke halaman result
+        return redirect(url_for('result', username=username, expired=expired, output=output))
+        
+
 @app.route('/result')
 def result():
     # Ambil data yang diterima dari URL dan tampilkan di result.html
