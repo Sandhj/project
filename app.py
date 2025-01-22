@@ -22,7 +22,11 @@ def init_db():
 
 @app.route("/index_guest")
 def index_guest():
-    return render_template("index.html")
+    return render_template("index_guest.html")
+
+@app.route("/index_admin")
+def index_admin():
+    return render_template("index_admin.html")
 
 # Home route
 @app.route("/dashboard")
