@@ -98,6 +98,10 @@ def add_balance():
     return render_template("add_balance.html")
 
 # ---------------Fungsi Create Account------------
+@app.route('/create_temp')
+def create_temp():
+    return render_template("create.html")
+    
 @app.route('/create', methods=['POST'])
 def create():
     if request.method == 'POST':
