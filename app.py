@@ -132,10 +132,10 @@ def create_account():
 
             balance = user_data[0]
 
-        # Tentukan biaya pembuatan akun VPN berdasarkan nilai dari protocol
-        if protocol == "stb":
+        # Tentukan biaya pembuatan akun VPN berdasarkan nilai dari device
+        if device == "stb":
             vpn_creation_cost = 8000
-        elif protocol == "hp":
+        elif device == "hp":
             vpn_creation_cost = 4000
         else:
             vpn_creation_cost = 0  # Anda bisa menambahkan biaya default jika diperlukan
