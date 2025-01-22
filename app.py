@@ -337,7 +337,7 @@ def listtxl():
 @app.route('/get_packages', methods=['GET'])
 def get_packages():
     """Mengambil semua data paket dari database."""
-    with sqlite3.connect(DB_NAME) as conn:
+    with sqlite3.connect(users.db) as conn:
         cursor = conn.cursor()
         cursor.execute('SELECT id, name, detail FROM packages')
         packages = [{'id': row[0], 'name': row[1], 'detail': row[2]} for row in cursor.fetchall()]
@@ -357,7 +357,7 @@ def add_package():
         return jsonify({'error': 'Nama dan detail paket wajib diisi!'}), 400
 
     try:
-        with sqlite3.connect(DB_NAME) as conn:
+        with sqlite3.connect(users.db) as conn:
             cursor = conn.cursor()
             cursor.execute('INSERT INTO packages (name, detail) VALUES (?, ?)', (name, detail))
             conn.commit()
@@ -378,7 +378,7 @@ def update_package(package_name):
     if not new_name or not new_detail:
         return jsonify({'error': 'Nama dan detail paket wajib diisi!'}), 400
 
-    with sqlite3.connect(DB_NAME) as conn:
+    with sqlite3.connect(users.db) as conn:
         cursor = conn.cursor()
         cursor.execute('SELECT id FROM packages WHERE name = ?', (package_name,))
         package = cursor.fetchone()
@@ -395,7 +395,7 @@ def update_package(package_name):
 @app.route('/delete_package/<string:package_name>', methods=['DELETE'])
 def delete_package(package_name):
     """Menghapus paket dari database."""
-    with sqlite3.connect(DB_NAME) as conn:
+    with sqlite3.connect(users.db) as conn:
         cursor = conn.cursor()
         cursor.execute('DELETE FROM packages WHERE name = ?', (package_name,))
         conn.commit()
