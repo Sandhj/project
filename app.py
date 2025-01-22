@@ -142,7 +142,7 @@ def create_account():
 
         # Pastikan saldo cukup
         if balance < vpn_creation_cost:
-            flash("Insufficient balance to create VPN account.", "danger")
+            flash("Saldo anda tidak mencukupi untuk transaksi ini.", "danger")
             return redirect(url_for("create_temp"))
 
         # Kurangi saldo pengguna
