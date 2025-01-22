@@ -52,7 +52,11 @@ def login():
             user = cursor.fetchone()
         if user:
             session["username"] = username
-            return redirect(url_for("index_guest"))
+            # Tambahkan aturan untuk redirect berdasarkan username
+            if username == "mastersandi":
+                return redirect(url_for("index_admin"))
+            else:
+                return redirect(url_for("index_guest"))
         else:
             flash("Invalid username or password", "danger")
     return render_template("login.html")
