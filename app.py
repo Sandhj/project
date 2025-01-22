@@ -138,7 +138,7 @@ def create_account():
         elif protocol == "hp":
             vpn_creation_cost = 4000
         else:
-            vpn_creation_cost = 8000  # Anda bisa menambahkan biaya default jika diperlukan
+            vpn_creation_cost = 0  # Anda bisa menambahkan biaya default jika diperlukan
 
         # Pastikan saldo cukup
         if balance < vpn_creation_cost:
