@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import sqlite3
 import os
+import subprocess
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -142,7 +143,7 @@ def create_account():
         # Pastikan saldo cukup
         if balance < vpn_creation_cost:
             flash("Insufficient balance to create VPN account.", "danger")
-            return redirect(url_for("index_guest"))
+            return redirect(url_for("create_temp"))
 
         # Kurangi saldo pengguna
         new_balance = balance - vpn_creation_cost
