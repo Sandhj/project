@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 import sqlite3
 import os
 import subprocess
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -16,6 +17,14 @@ def init_db():
                 username TEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL,
                 balance REAL DEFAULT 0.0
+            )
+        """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS results (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL,
+                expired DATE NOT NULL,
+                output TEXT NOT NULL
             )
         """)
         conn.commit()
@@ -200,19 +209,46 @@ def create_account():
 
 @app.route('/result')
 def result():
-    # Ambil data yang diterima dari URL dan tampilkan di result.html
+    # Ambil data dari URL
     username = request.args.get('username')
     expired = request.args.get('expired')
     output = request.args.get('output')
 
-    # Kembalikan data ke halaman result.html tanpa WhatsApp link
+    # Simpan ke database
+    with sqlite3.connect("users.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO results (username, expired, output)
+            VALUES (?, ?, ?)
+        """, (username, expired, output))
+        conn.commit()
+
+    # Render halaman hasil
     return render_template(
         'result.html',
         username=username,
         expired=expired,
         output=output
     )
-    
+
+@app.route('/see_result')
+def see_result():
+    # Ambil semua hasil dari database yang belum expired
+    today = datetime.now().strftime('%Y-%m-%d')
+    with sqlite3.connect("users.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            DELETE FROM results WHERE expired < ?
+        """, (today,))
+        conn.commit()
+
+        cursor.execute("""
+            SELECT username, expired, output FROM results WHERE expired >= ?
+        """, (today,))
+        results = cursor.fetchall()
+
+    # Render halaman untuk melihat hasil
+    return render_template('see_result.html', results=results)
 
 # Logout route
 @app.route("/logout")
