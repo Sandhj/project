@@ -27,8 +27,13 @@ def home():
             cursor = conn.cursor()
             cursor.execute("SELECT balance FROM users WHERE username = ?", (username,))
             balance = cursor.fetchone()[0]
-        return render_template("dashboard.html", username=username, balance=balance)
+        return render_template("index.html", username=username, balance=balance)
     return redirect(url_for("login"))
+
+# Rute untuk halaman dashboard
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
 
 # Login route
 @app.route("/login", methods=["GET", "POST"])
