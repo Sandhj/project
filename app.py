@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, g
+from flask import Flask, render_template, request, redirect, session, g, flash
 import sqlite3
 
 app = Flask(__name__)
@@ -55,7 +55,8 @@ def login():
                 return redirect("/admin")
             return redirect("/guest")
         else:
-            return "Invalid credentials!"
+            flash("Username atau password salah!", "error")
+            return redirect("/login")
     return render_template("login.html")
 
 @app.route("/register", methods=["GET", "POST"])
@@ -67,9 +68,11 @@ def register():
         try:
             db.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
             db.commit()
+            flash("Registrasi berhasil! Silakan login.", "success")
             return redirect("/login")
         except sqlite3.IntegrityError:
-            return "Username already exists!"
+            flash("Username sudah digunakan!", "error")
+            return redirect("/register")
     return render_template("register.html")
 
 @app.route("/guest")
@@ -92,10 +95,10 @@ def admin_dashboard():
     balance = user["balance"] if user else 0
     return render_template("dash_admin.html", username=username, balance=balance)
 
-
 @app.route("/logout")
 def logout():
     session.pop("username", None)
+    flash("Anda telah logout.", "info")
     return redirect("/login")
 
 if __name__ == "__main__":
