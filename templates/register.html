@@ -96,12 +96,66 @@
         .switch a:hover {
             text-decoration: underline;
         }
+        
+        /* Styling untuk container pesan flash */
+        #flash-message {
+                margin: 20px 0;
+        }
+
+        /* Default styling untuk pesan flash */
+        .alert {
+                padding: 15px;
+                margin-bottom: 10px;
+                border: 1px solid transparent;
+                border-radius: 5px;
+                font-size: 16px;
+                text-align: center;
+        }
+
+        /* Styling untuk pesan sukses */
+        .alert-success {
+                color: #155724;
+                background-color: #d4edda;
+                border-color: #c3e6cb;
+        }
+
+        /* Styling untuk pesan error/danger */
+        .alert-danger {
+                color: #721c24;
+                background-color: #f8d7da;
+                border-color: #f5c6cb;
+        }
+
+        /* Styling untuk pesan informasi */
+        .alert-info {
+                color: #0c5460;
+                background-color: #d1ecf1;
+                border-color: #bee5eb;
+        }
+
+        /* Styling untuk pesan peringatan */
+        .alert-warning {
+                color: #856404;
+                background-color: #fff3cd;
+                border-color: #ffeeba;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Register</h1>
-        <form>
+        <!-- Bagian untuk pesan flash -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div id="flash-message">
+                {% for message in messages %}
+                    <div class="alert">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% endwith %}
+
+        <form action="/register" method="POST">
             <div class="form-group">
                 <label for="username">Username</label>
                 <input type="text" id="username" placeholder="Enter your username" required>
