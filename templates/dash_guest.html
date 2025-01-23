@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toggle Dropdown Menu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* General styling */
+        body {
+            font-family: 'Lato', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        /* Remove blue outline when button is clicked */
+        .toggle:focus {
+            outline: none;
+        }
+
+        /* Remove highlight effect in Android and Webkit browsers */
+        .toggle, .dropdown a {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Top bar styling */
+        .top-bar {
+            background-color: #fffff;
+            color: black;
+            padding: 20px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+   
+        .balance-info {
+            margin-left: -150px;
+        } 
+
+        .brand-name {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .toggle {
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            background: none;
+            border: none;
+            color: black;
+        }
+
+        .toggle:hover {
+            transform: scale(1.2);
+        }
+
+        /* Dropdown menu styling */
+        .dropdown {
+            position: absolute;
+            top: 65px;
+            left: 10px;
+            background-color: white;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            transform: scaleY(0);
+            transform-origin: top;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .dropdown.show {
+            transform: scaleY(1);
+        }
+
+        .dropdown a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #333;
+            transition: background-color 0.3s ease;
+        }
+
+        .dropdown a:hover {
+            background-color: #aaaaaa;
+        }
+
+        .dropdown a i {
+            color: #1a1a2e;
+        }
+
+        /* Main content styling */
+        .content {
+            height: calc(100vh - 70px);
+            overflow: hidden;
+        }
+       
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .brand-name {
+                font-size: 1em;
+            }
+            .toggle {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <button class="toggle" onclick="toggleMenu()" id="toggleButton"><i class="fas fa-bars"></i></button>
+        <div class="balance-info"><i class="fas fa-wallet"></i> {{ balance }}</div>
+        <div class="brand-name"><i class="fas fa-user"></i> {{ username }}</div>
+    </div>
+
+    <!-- Dropdown Menu -->
+    <div class="dropdown" id="dropdownMenu">
+        <a href="home.html" target="content-frame"><i class="fas fa-home"></i> Home</a>
+        <a href="vpn-prem.html" target="content-frame"><i class="fas fa-shield-alt"></i> VPN Premium</a>
+        <a href="vpn-free.html" target="content-frame"><i class="fas fa-globe"></i> VPN Free</a>
+        <a href="tembak-xl.html" target="content-frame"><i class="fas fa-bullseye"></i> Tembak XL</a>
+        <a href="deposit.html" target="content-frame"><i class="fas fa-wallet"></i> Deposit</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <iframe id="content-frame" name="content-frame" src="home.html"></iframe>
+    </div>
+
+    <script>
+        const dropdown = document.getElementById('dropdownMenu');
+        const toggleButton = document.getElementById('toggleButton');
+
+        function toggleMenu() {
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside of it
+        document.addEventListener('click', function (event) {
+            const isClickInside = toggleButton.contains(event.target) || dropdown.contains(event.target);
+
+            if (!isClickInside) {
+                dropdown.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>
