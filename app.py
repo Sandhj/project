@@ -96,6 +96,8 @@ def admin_dashboard():
     balance = user["balance"] if user else 0
     return render_template("dash_admin.html", username=username, balance=balance)
 
+# ------------------- BAGIAN 2 FUNGSI SCRIPT --------------------
+
 @app.route("/logout")
 def logout():
     session.pop("username", None)
