@@ -1,8 +1,9 @@
 from flask import Flask, render_template, request, redirect, session, g, flash
 import sqlite3
+import os
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key"
+app.secret_key = os.urandom(24)
 DATABASE = "database.db"
 
 def get_db():
