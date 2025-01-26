@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuota XL Order</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Lato', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f9;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin: 10px 0;
+            padding: 20px;
+        }
+        .title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .dropdown {
+            position: relative;
+            width: 100%;
+        }
+        .input-field {
+            width: 94%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .package-list {
+            display: none;
+            position: absolute;
+            top: 100%;
+            width: 99%;
+            max-height: 200px;
+            overflow-y: auto;
+            background: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            z-index: 1;
+        }
+        .package-list.active {
+            display: block;
+        }
+        .package-item {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .package-item:hover {
+            background-color: #f0f0f0;
+        }
+        .box-detail {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px dashed #ccc;
+            border-radius: 6px;
+            background: #f9f9f9;
+            min-height: 150px;
+            white-space: pre-line;
+        }
+        .order-button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #007bff;
+            color: #fff;
+            text-align: center;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .order-button:hover {
+            background: #0056b3;
+        }
+        .box-admin {
+            padding: 15px;
+            background: #f1f1f1;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">KUOTA XL</div>
+        
+        <div>
+            <label>List Paket</label>
+            <div id="dropdown" class="dropdown" onclick="toggleDropdown()">
+                <input type="text" id="packageInput" class="input-field" placeholder="Pilih Paket" readonly />
+                <div id="packageList" class="package-list">
+                    <!-- Daftar paket akan dimasukkan di sini -->
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <label>Input Nomor XL</label>
+            <input type="text" id="inputNomorXL" class="input-field" placeholder="Masukkan nomor XL Anda">
+        </div>
+
+        <div id="detailBox" class="box-detail">
+            <p>Detail rincian kuota akan tampil di sini.</p>
+        </div>
+
+        <button class="order-button" onclick="order()">ORDER</button>
+    </div>
+
+    <div class="container">
+        <div class="box-admin">
+            <p>Untuk Pembelian Paket OTP Silahkan Lakukan OTP mandiri ke : https://nomorxlku.my.id/?sc=Sandi2525</p>
+            <p>Note : Ini Bukan Auto Order Pesan akan di Teruskan Ke Wa Untuk Proses Pemesanan Oleh Admin</p>
+            <p>Hubungi: 085155208019</p>
+            <p>Untuk Keluhan & Pertanyaan</p>
+        </div>
+    </div>
+
+    <script>
+        function fetchPackages() {
+            fetch('/get_packages') // Ganti dengan URL endpoint Anda
+                .then(response => response.json())
+                .then(data => {
+                    const packageList = document.getElementById('packageList');
+                    packageList.innerHTML = ''; // Reset list
+
+                    // Tambahkan setiap paket ke dalam daftar
+                    for (const [name, detail] of Object.entries(data)) {
+                        const listItem = document.createElement('div');
+                        listItem.classList.add('package-item');
+                        listItem.textContent = name;
+                        listItem.onclick = () => selectPackage(name, detail);
+                        packageList.appendChild(listItem);
+                    }
+                });
+        }
+
+        function toggleDropdown() {
+            const packageList = document.getElementById('packageList');
+            packageList.classList.toggle('active');
+        }
+
+        function selectPackage(name, detail) {
+            const inputField = document.getElementById('packageInput');
+            inputField.value = name;
+
+            // Update detail box
+            const detailBox = document.getElementById('detailBox');
+            detailBox.textContent = detail || "Detail tidak ditemukan.";
+
+            // Tutup dropdown setelah pemilihan
+            const packageList = document.getElementById('packageList');
+            packageList.classList.remove('active');
+        }
+
+        function order() {
+            const packageName = document.getElementById('packageInput').value;
+            const phoneNumber = document.getElementById('inputNomorXL').value.trim();
+
+            if (!packageName || !phoneNumber) {
+                alert('Paket dan nomor wajib diisi!');
+                return;
+            }
+
+            const url = `https://wa.me/6285155208019?text=Orderan Baru:%0A%0APaket: ${packageName}%0ANomor: ${phoneNumber}`;
+            window.open(url, '_blank');
+        }
+
+        // Fetch packages on page load
+        fetchPackages();
+    </script>
+</body>
+</html>
