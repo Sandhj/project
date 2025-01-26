@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .title {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 94%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 15px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .table-container {
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .delete-button {
+            background-color: #dc3545;
+        }
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+        .edit-button {
+            background-color: #ffc107;
+            color: #000;
+        }
+        .edit-button:hover {
+            background-color: #e0a800;
+        }
+        button {
+           background-color: #4CAF50; /* Warna latar belakang hijau */
+           color: white; /* Warna teks putih */
+           margin-top: 10px;
+           padding: 14px 20px; /* Padding vertikal 14px dan horizontal 20px */
+           font-size: 16px; /* Ukuran font */
+           border: none; /* Menghapus border */
+           cursor: pointer; /* Menampilkan cursor pointer saat hover */
+           border-radius: 5px; /* Membuat sudut button melengkung */
+           transition: background-color 0.3s ease; /* Efek transisi warna latar belakang */
+        }
+
+        button:hover {
+           background-color: #45a049; /* Warna latar belakang lebih gelap saat hover */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">ADD LIST XL</div>
+        
+        <div class="form-group">
+            <label for="packageName">Nama Paket</label>
+            <input type="text" id="packageName" placeholder="Masukkan nama paket">
+        </div>
+        
+        <div class="form-group">
+            <label for="packageDetail">Detail Paket</label>
+            <textarea id="packageDetail" placeholder="Masukkan detail paket (dapat menggunakan baris baru)"></textarea>
+        </div>
+
+        <button class="button" onclick="addOrUpdatePackage()">Tambah/Perbarui Paket</button>
+
+        <div class="table-container">
+            <h3>Daftar Paket</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nama Paket</th>
+                        <th>Detail Paket</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="packageTableBody">
+                    <!-- Baris paket akan dimuat secara dinamis -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let editingPackage = null;
+
+        function fetchPackages() {
+            fetch('/get_packages')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('packageTableBody');
+                    tableBody.innerHTML = ''; // Bersihkan tabel sebelum memuat data
+                    for (const [name, detail] of Object.entries(data)) {
+                        const row = document.createElement('tr');
+
+                        row.innerHTML = `
+                            <td>${name}</td>
+                            <td style="white-space: pre-line;">${detail}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="button edit-button" onclick="editPackage('${name}')">Edit</button>
+                                    <button class="button delete-button" onclick="deletePackage('${name}')">Hapus</button>
+                                </div>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    }
+                });
+        }
+
+        function addOrUpdatePackage() {
+            const packageName = document.getElementById('packageName').value.trim();
+            const packageDetail = document.getElementById('packageDetail').value.trim();
+
+            if (!packageName || !packageDetail) {
+                alert('Nama paket dan detail wajib diisi!');
+                return;
+            }
+
+            const method = editingPackage ? 'PUT' : 'POST';
+            const endpoint = editingPackage ? `/update_package/${editingPackage}` : '/add_package';
+            const payload = { name: packageName, detail: packageDetail };
+
+            fetch(endpoint, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(response => {
+                if (response.ok) {
+                    alert(editingPackage ? 'Paket diperbarui!' : 'Paket ditambahkan!');
+                    editingPackage = null;
+                    document.getElementById('packageName').value = '';
+                    document.getElementById('packageDetail').value = '';
+                    fetchPackages();
+                } else {
+                    alert('Gagal menyimpan paket.');
+                }
+            });
+        }
+
+        function deletePackage(packageName) {
+            if (!confirm(`Apakah Anda yakin ingin menghapus paket "${packageName}"?`)) return;
+
+            fetch(`/delete_package/${packageName}`, { method: 'DELETE' })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Paket berhasil dihapus!');
+                        fetchPackages();
+                    } else {
+                        alert('Gagal menghapus paket.');
+                    }
+                });
+        }
+
+        function editPackage(packageName) {
+            fetch('/get_packages')
+                .then(response => response.json())
+                .then(data => {
+                    if (data[packageName]) {
+                        editingPackage = packageName;
+                        document.getElementById('packageName').value = packageName;
+                        document.getElementById('packageDetail').value = data[packageName];
+                    } else {
+                        alert('Paket tidak ditemukan.');
+                    }
+                });
+        }
+
+        // Muat paket saat halaman dimuat
+        fetchPackages();
+    </script>
+</body>
+</html>
