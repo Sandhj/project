@@ -4,6 +4,10 @@ import os
 import paramiko
 import subprocess
 import json
+import shutil
+
+app = Flask(__name__)
+
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -267,6 +271,93 @@ def delete_server():
             flash(f"Server '{name_to_delete}' berhasil dihapus!", "success")
         
         return redirect(url_for('delete_server'))
+
+#------------------- Fungsi Dor XL --------------
+# Path ke file list_xl.json
+DATA_FILE = '/root/project/list_xl.json'
+
+# Endpoint untuk halaman utama
+@app.route('/list_xl')
+def list_xl():
+    return render_template('list_xl.html')
+
+# Endpoint untuk mendapatkan daftar paket
+@app.route('/get_packages', methods=['GET'])
+def get_packages():
+    try:
+        with open(DATA_FILE, 'r') as file:
+            data = json.load(file)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+#----------------------------------
+
+# Path ke file list_xl.json dan backup
+DATA_FILE = '/root/project/list_xl.json'
+
+# Endpoint untuk halaman utama
+@app.route('/add_list_xl')
+def add_list_xl():
+    return render_template('add_list_xl.html')
+
+# Endpoint untuk menambahkan paket
+@app.route('/add_package', methods=['POST'])
+def add_package():
+    try:
+        new_package = request.json
+        with open(DATA_FILE, 'r') as file:
+            data = json.load(file)
+
+        data[new_package['name']] = new_package['detail']
+
+        with open(DATA_FILE, 'w') as file:
+            json.dump(data, file, indent=4)
+
+        return jsonify({"message": "Paket berhasil ditambahkan!"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Endpoint untuk memperbarui paket
+@app.route('/update_package/<package_name>', methods=['PUT'])
+def update_package(package_name):
+    try:
+        updated_package = request.json
+        with open(DATA_FILE, 'r') as file:
+            data = json.load(file)
+
+        if package_name in data:
+            data[updated_package['name']] = updated_package['detail']
+            if package_name != updated_package['name']:
+                del data[package_name]  # Hapus nama lama jika diperbarui
+
+            with open(DATA_FILE, 'w') as file:
+                json.dump(data, file, indent=4)
+
+            return jsonify({"message": "Paket berhasil diperbarui!"}), 200
+        else:
+            return jsonify({"error": "Paket tidak ditemukan!"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Endpoint untuk menghapus paket
+@app.route('/delete_package/<package_name>', methods=['DELETE'])
+def delete_package(package_name):
+    try:
+        with open(DATA_FILE, 'r') as file:
+            data = json.load(file)
+
+        if package_name in data:
+            del data[package_name]
+            with open(DATA_FILE, 'w') as file:
+                json.dump(data, file, indent=4)
+
+            return jsonify({"message": "Paket berhasil dihapus!"}), 200
+        else:
+            return jsonify({"error": "Paket tidak ditemukan!"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route("/logout")
 def logout():
