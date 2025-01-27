@@ -478,6 +478,31 @@ def get_status():
     
     return jsonify(vps_list)
 
+#------------ TOP UP REQUEST -----------
+
+@app.route('/deposit', methods=['GET'])
+def deposit():
+    if 'username' not in session:
+        return redirect('/login')
+
+    active_user = session['username']  # Ambil username dari sesi aktif
+    return render_template('deposit.html', username=active_user)
+
+@app.route('/ajukan', methods=['POST'])
+def ajukan():
+    if 'username' not in session:
+        return redirect('/login')
+
+    jumlah = request.form.get('jumlah')
+    active_user = session['username']  # Ambil username dari sesi aktif
+
+    if jumlah:
+        # Membuat URL WhatsApp dengan format yang sudah ditentukan
+        wa_url = f"https://wa.me/6281234567890?text={urllib.parse.quote(f'PERMINTAAN TOP UP\nUsername: {active_user}\nJumlah: {jumlah}')}"
+        return redirect(wa_url)
+    else:
+        return "Jumlah tidak valid", 400
+        
 @app.route("/logout")
 def logout():
     session.pop("username", None)
