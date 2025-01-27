@@ -7,14 +7,8 @@ import json
 import shutil
 
 app = Flask(__name__)
-
-
-app = Flask(__name__)
 app.secret_key = os.urandom(24)
 DATABASE = "database.db"
-
-app = Flask(__name__)
-app.secret_key = os.urandom(24)
 
 def get_db():
     db = getattr(g, "_database", None)
@@ -442,6 +436,47 @@ def add_balance():
         return redirect("/add_balance")
 
     return render_template("add_balance.html")
+
+#------------- Home Template ------------
+# Fungsi untuk memeriksa status dan latensi VPS
+def check_vps_status(hostname):
+    try:
+        # Perintah ping ke setiap VPS
+        result = subprocess.run(
+            ["ping", "-c", "1", hostname],  # Ganti dengan IP/hostname VPS
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        if result.returncode == 0:
+            # Ambil latensi dari hasil ping
+            for line in result.stdout.split("\n"):
+                if "time=" in line:
+                    latency = line.split("time=")[1].split(" ")[0]
+                    # Ubah latensi ke milidetik (ms)
+                    latency_ms = int(float(latency) * 1000)
+                    return {"status": "ON", "latency": f"{latency_ms} ms"}
+        return {"status": "OFF", "latency": "-"}
+    except Exception as e:
+        return {"status": "OFF", "latency": "-"}
+
+@app.route("/home")
+def index():
+    return render_template("home.html")
+
+@app.route("/status", methods=["GET"])
+def get_status():
+    # Membaca data dari file JSON
+    with open('server.json') as f:
+        vps_list = json.load(f)
+    
+    # Memeriksa status masing-masing VPS
+    for vps in vps_list:
+        vps_status = check_vps_status(vps["hostname"])
+        vps["status"] = vps_status["status"]
+        vps["latency"] = vps_status["latency"]
+    
+    return jsonify(vps_list)
 
 @app.route("/logout")
 def logout():
