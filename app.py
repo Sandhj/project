@@ -191,7 +191,7 @@ def create_account():
 
     # Periksa apakah saldo mencukupi
     if current_balance < total_cost:
-        flash("Insufficient balance to complete the transaction.", "error")
+        flash("Saldo Kamu Tidak Mencukupi Untuk Melanjutkan Transaksi.", "error")
         return redirect('/create_temp')
 
     # Kurangi saldo
