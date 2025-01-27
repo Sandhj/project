@@ -144,26 +144,70 @@ def vps_list():
     # Mengirimkan daftar VPS ke frontend
     return jsonify(get_vps_list())
 
-@app.route('/create_temp', methods=['GET', 'POST'])
+@app.route('/create_temp')
 def create_account_temp():
     return render_template('create.html')
 
 @app.route('/create', methods=['POST'])
 def create_account():
+    # Cek sesi aktif
+    if 'username' not in session:
+        return redirect('/login')
+
+    # Ambil username dari sesi aktif
+    active_user = session['username']
+
     # Ambil data dari form
     protocol = request.form['protocol']
     device = request.form['device']
     username = request.form['username']
-    expired = request.form['expired']
+    expired = int(request.form['expired'])
     vps_name = request.form['vps']  # Nama VPS yang dipilih dari dropdown
-    
+
+    # Logika pengurangan saldo
+    cost_per_device = {'hp': 5000, 'stb': 10000}  # Biaya per device
+    cost_per_expired = {30: 1, 60: 2, 90: 3, 120: 4}  # Faktor pengganda berdasarkan expired
+
+    # Validasi device dan expired
+    if device not in cost_per_device or expired not in cost_per_expired:
+        return "Invalid device or expired value", 400
+
+    # Hitung biaya pengurangan saldo
+    total_cost = cost_per_device[device] * cost_per_expired[expired]
+
+    # Cek saldo pengguna
+    db = get_db()
+    cursor = db.cursor()
+
+    # Ambil saldo pengguna aktif
+    cursor.execute("SELECT balance FROM users WHERE username = ?", (active_user,))
+    user_data = cursor.fetchone()
+
+    if not user_data:
+        flash("Silahkan Login Kembali dan coba lagi", "error")
+        return redirect('/create_account_temp')
+
+    current_balance = user_data['balance']
+
+    # Periksa apakah saldo mencukupi
+    if current_balance < total_cost:
+        flash("Insufficient balance to complete the transaction.", "error")
+        return redirect('/create_account_temp')
+
+    # Kurangi saldo
+    new_balance = current_balance - total_cost
+    cursor.execute("UPDATE users SET balance = ? WHERE username = ?", (new_balance, active_user))
+    db.commit()
+
+    # Ambil daftar VPS
     vps_list = get_vps_list()
     vps = next((v for v in vps_list if v['name'] == vps_name), None)
 
     if not vps:
-        return "VPS tidak ditemukan", 400
+        flash("VPS not found.", "error")
+        return redirect('/create_account_temp')
 
-    print(f"Received data - Protocol: {protocol}, Device: {device}, Username: {username}, Expired: {expired}")
+    print(f"Received data - Protocol: {protocol}, Device: {device}, Username: {username}, Expired: {expired}, Cost: {total_cost}")
 
     # Menjalankan skrip shell di VPS yang dipilih
     output = run_script_on_vps(vps, protocol, username, expired)
@@ -174,8 +218,11 @@ def create_account():
         device=device,
         expired=expired,
         protocol=protocol,
-        output=output
+        output=output,
+        cost=total_cost,
+        balance=new_balance
     )
+
 
 @app.route('/result')
 def result():
