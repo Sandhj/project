@@ -6,7 +6,7 @@ import subprocess
 import json
 import shutil
 import json
-
+import urllib.parse
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -540,8 +540,30 @@ def vpn_free():
 
     # Mengalihkan ke halaman result
     return redirect(url_for('result', username=username, device=device, expired=expired, protocol=protocol, output=output))
-    
-        
+
+#--------------- Fungsi Deposit ----------
+# Route utama untuk menampilkan form HTML
+@app.route('/deposit', methods=['POST'])
+def deposit():
+    return render_template('deposit.html')  # Pastikan file HTML disimpan di folder "templates"
+
+# Route untuk memproses data dari form
+@app.route('/process', methods=['POST'])
+def process_form():
+    username = request.form.get('username')
+    deposit_amount = request.form.get('depositAmount')
+
+    if username and deposit_amount:
+        # Format pesan untuk WhatsApp
+        message = f"PERMINTAAN DEPOSIT\nUsername: {username}\nJumlah Deposit: {deposit_amount}"
+        encoded_message = urllib.parse.quote(message)
+        whatsapp_url = f"https://wa.me/6285155208019?text={encoded_message}"
+
+        return redirect(whatsapp_url)
+    else:
+        return jsonify({"error": "Harap isi semua data!"}), 400
+
+
 @app.route("/logout")
 def logout():
     session.pop("username", None)
