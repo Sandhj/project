@@ -532,9 +532,17 @@ def ajukan():
         deposit_history.append(new_deposit)
         write_deposit_history(deposit_history)
 
-        # Membuat URL WhatsApp dengan format yang sudah ditentukan
-        wa_url = f"https://wa.me/6285155208019?text={urllib.parse.quote(f'PERMINTAAN TOP UP\nUsername: {active_user}\nJumlah: {jumlah}')}"
-        return redirect(wa_url)
+        # Membuat pesan yang ingin dikirimkan
+        wa_message = f"PERMINTAAN TOP UP\nUsername: {active_user}\nJumlah: {jumlah}"
+
+        # Encode pesan untuk URL WhatsApp
+        wa_encoded_message = urllib.parse.quote(wa_message)
+
+        # Membuat link WhatsApp
+        wa_link = f"https://wa.me/6285155208019?text={wa_encoded_message}"
+
+        # Redirect ke link WhatsApp
+        return redirect(wa_link)
     else:
         return "Jumlah tidak valid", 400
     
