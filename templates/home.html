@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status VPS</title>
+
+    <!-- Link to Google Fonts (Lato) -->
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Lato', sans-serif; /* Apply Lato font to all elements */
+        }
+
+        /* Body Styles */
+        body {
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 20px;
+            height: 100vh;
+            text-align: center; /* Center content horizontally */
+        }
+
+        /* Title Styles */
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #333;
+            font-weight: 700; /* Bold font for title */
+            text-align: center; /* Center align the title */
+            width: 100%;
+        }
+
+        /* Loader Styles */
+        .loader {
+            display: none;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+        }
+
+        /* Spinner Animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Card Container Styles */
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        /* Card Styles */
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Card Header */
+        .card-header {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Status Section */
+        .status {
+            display: flex;
+            align-items: center;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .status.on {
+            color: #27ae60;
+        }
+
+        .status.off {
+            color: #e74c3c;
+        }
+
+        .icon {
+            margin-right: 10px;
+        }
+
+        /* Latency Section */
+        .latency {
+            display: flex;
+            align-items: center;
+            font-size: 1.1em;
+            color: #7f8c8d;
+        }
+
+        /* Error Handling */
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+            padding: 15px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .error .icon {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>STATUS SERVER</h1>
+    <div class="loader" id="loader"></div>
+    <div class="container"></div>
+
+    <script>
+        async function fetchStatus() {
+            const container = document.querySelector('.container');
+            const loader = document.getElementById('loader');
+
+            // Loader hanya tampil saat pertama kali.
+            if (container.innerHTML === '') {
+                loader.style.display = 'block';
+            }
+
+            try {
+                const response = await fetch('/status');
+                if (!response.ok) throw new Error('Failed to fetch data');
+                const data = await response.json();
+                container.innerHTML = '';
+                data.forEach(vps => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+
+                    // Menambahkan ikon status berdasarkan status VPS
+                    const statusIcon = vps.status === 'ON'
+                        ? '<i class="fa-solid fa-check-circle icon" style="color: #00ff00;"></i>'
+                        : '<i class="fa-solid fa-times-circle icon" style="color: #ff0000;"></i>';
+
+                    // Menambahkan ikon untuk nama VPS dan latency
+                    const nameIcon = '<i class="fa-solid fa-server icon"></i>';
+                    const latencyIcon = '<i class="fa-solid fa-wifi icon"></i>';
+
+                    card.innerHTML = `
+                        <div class="card-header">
+                            ${nameIcon} ${vps.name}
+                        </div>
+                        <div class="status ${vps.status === 'ON' ? 'on' : 'off'}">
+                            ${statusIcon} Status: ${vps.status}
+                        </div>
+                        <div class="latency">
+                            ${latencyIcon} Latency: ${vps.latency || '-'}
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error fetching status:', error);
+                container.innerHTML = `
+                    <div class="error">
+                        <i class="fa-solid fa-exclamation-circle icon" style="color: #ff0000;"></i>
+                        Error fetching data. Please try again later.
+                    </div>`;
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+        setInterval(fetchStatus, 10000);
+        window.onload = fetchStatus;
+    </script>
+</body>
+</html>
