@@ -405,6 +405,43 @@ def delete_package(package_name):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+#-------------- Saldo add -------------
+# Route untuk form tambah saldo
+@app.route("/add_balance", methods=["GET", "POST"])
+def add_balance():
+    if request.method == "POST":
+        username = request.form.get("username")
+        balance_to_add = request.form.get("balance")
+
+        if not username or not balance_to_add:
+            flash("Username dan jumlah saldo harus diisi.", "error")
+            return redirect("/add_balance")
+
+        try:
+            balance_to_add = int(balance_to_add)
+            if balance_to_add <= 0:
+                flash("Jumlah saldo harus lebih dari 0.", "error")
+                return redirect("/add_balance")
+        except ValueError:
+            flash("Jumlah saldo harus berupa angka.", "error")
+            return redirect("/add_balance")
+
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+        user = cursor.fetchone()
+
+        if user:
+            new_balance = user["balance"] + balance_to_add
+            cursor.execute("UPDATE users SET balance = ? WHERE username = ?", (new_balance, username))
+            db.commit()
+            flash(f"Saldo berhasil ditambahkan untuk {username}. Saldo baru: {new_balance}", "success")
+        else:
+            flash(f"Pengguna dengan username '{username}' tidak ditemukan.", "error")
+
+        return redirect("/add_balance")
+
+    return render_template("add_balance.html")
 
 @app.route("/logout")
 def logout():
