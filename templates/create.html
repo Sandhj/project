@@ -74,6 +74,18 @@
 <body>
     <div class="container">
         <h2><i class="fas fa-tasks"></i> VIP MANAGEMENT</h2>
+
+        <!-- Flash Messages -->
+        <div id="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
         <form action="/create" method="POST">
             <div class="form-group">
                 <label for="vps"><i class="fas fa-server icon"></i>Pilih VPS:</label>
@@ -120,6 +132,14 @@
     </div>
 
     <script>
+        // Script untuk menyembunyikan flash message setelah beberapa detik
+        setTimeout(() => {
+            const flashMessages = document.getElementById('flash-messages');
+            if (flashMessages) {
+                flashMessages.style.display = 'none';
+            }
+        }, 5000); // Sembunyikan setelah 5 detik
+        
         // Mengambil data VPS dari backend
         fetch('/vps-list')
             .then(response => response.json())
