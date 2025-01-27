@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permintaan Deposit</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Global styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: top;
+            height: 100vh;
+        }
+
+        /* Card container */
+        .container {
+            background: #fff;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        /* Form labels */
+        label {
+            font-weight: 500;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* Form inputs */
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #007BFF;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        /* Payment info */
+        .payment-info {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .payment-info strong {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .payment-info img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        /* Button styles */
+        button {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            color: #fff;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-align: center;
+            display: block;
+            margin-top: 10px;
+            text-decoration: none;
+        }
+    
+        .download-btn {
+            width: 94%;
+            padding: 10px;
+            font-size: 0.8rem;
+            color: #fff;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-align: center;
+            display: block;
+            margin-top: 10px;
+            text-decoration: none;
+        }
+
+        button:hover, .download-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Icon */
+        button i, .download-btn i {
+            margin-right: 5px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .footer a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form id="depositForm" onsubmit="redirectToWhatsApp(event)">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" placeholder="Masukkan username Anda" required>
+
+            <label for="depositAmount">Jumlah Deposit:</label>
+            <input type="number" id="depositAmount" name="depositAmount" placeholder="Masukkan jumlah deposit" required>
+
+            <!-- Payment Information -->
+            <div class="payment-info">
+                <strong>Silahkan lakukan pembayaran ke:</strong>
+                Dana/Shopee/Gopay: <b>082292615651</b><br>
+                Atau<br>
+                QRIS:<br>
+                <img src="https://raw.githubusercontent.com/Sandhj/project/main/static/qris.png" alt="QRIS" title="QRIS">
+                <a href="https://raw.githubusercontent.com/Sandhj/project/main/static/qris.png" class="download-btn" download>
+                    <i class="fas fa-download"></i> Download QRIS
+                </a>
+            </div>
+
+            <button type="submit"><i class="fab fa-whatsapp"></i> DEPOSIT</button>
+        </form>
+        <div class="footer">
+            <p>Powered by <a href="#">SANSTORE</a></p>
+        </div>
+    </div>
+
+    <script>
+        function redirectToWhatsApp(event) {
+            event.preventDefault(); // Mencegah form submit default
+
+            const username = document.getElementById('username').value;
+            const depositAmount = document.getElementById('depositAmount').value;
+
+            if (username && depositAmount) {
+                const message = `PERMINTAAN DEPOSIT\nUsername: ${username}\nJumlah Deposit: ${depositAmount}`;
+                const encodedMessage = encodeURIComponent(message);
+
+                window.location.href = `https://wa.me/6285155208019?text=${encodedMessage}`;
+            } else {
+                alert('Harap isi semua data!');
+            }
+        }
+    </script>
+</body>
+</html>
