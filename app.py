@@ -39,7 +39,7 @@ def init_db():
         db.commit()
 
 @app.route("/")
-def home():
+def login_temp():
     if "username" in session:
         if session["username"] == "mastersandi":
             return redirect("/admin")
@@ -461,7 +461,7 @@ def check_vps_status(hostname):
         return {"status": "OFF", "latency": "-"}
 
 @app.route("/home")
-def index():
+def home():
     return render_template("home.html")
 
 @app.route("/status", methods=["GET"])
