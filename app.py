@@ -144,7 +144,7 @@ def vps_list():
     # Mengirimkan daftar VPS ke frontend
     return jsonify(get_vps_list())
 
-@app.route('/create_temp')
+@app.route('/create_temp', methods=['GET'])
 def create_account_temp():
     return render_template('create.html')
 
@@ -185,14 +185,14 @@ def create_account():
 
     if not user_data:
         flash("Silahkan Login Kembali dan coba lagi", "error")
-        return redirect('/create_account_temp')
+        return redirect('/create_temp')
 
     current_balance = user_data['balance']
 
     # Periksa apakah saldo mencukupi
     if current_balance < total_cost:
         flash("Insufficient balance to complete the transaction.", "error")
-        return redirect('/create_account_temp')
+        return redirect('/create_temp')
 
     # Kurangi saldo
     new_balance = current_balance - total_cost
@@ -205,7 +205,7 @@ def create_account():
 
     if not vps:
         flash("VPS not found.", "error")
-        return redirect('/create_account_temp')
+        return redirect('/create_temp')
 
     print(f"Received data - Protocol: {protocol}, Device: {device}, Username: {username}, Expired: {expired}, Cost: {total_cost}")
 
