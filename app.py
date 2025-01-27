@@ -481,15 +481,12 @@ def get_status():
     return jsonify(vps_list)
 
 # ---------------Fungsi Create FREE VPN Account------------
-@app.route('/create_temp', methods=['GET', 'POST'])
-def create_account_temp():
-    if request.method == 'GET':
-        return render_template('login.html')
-    elif request.method == 'POST':
-        return render_template('create.html')
+@app.route('/vpn_free_temp', methods=['GET', 'POST'])
+def vpn_free_temp():
+    return render_template('vpn_free.html')
 
-@app.route('/create', methods=['POST'])
-def create_account():
+@app.route('/vpn_free', methods=['POST'])
+def vpn_free():
     if request.method == 'POST':
         # Ambil data dari form
         protocol = request.form['protocol']
