@@ -479,6 +479,70 @@ def get_status():
         vps["latency"] = vps_status["latency"]
     
     return jsonify(vps_list)
+
+# ---------------Fungsi Create FREE VPN Account------------
+@app.route('/create_temp', methods=['GET', 'POST'])
+def create_account_temp():
+    if request.method == 'GET':
+        return render_template('login.html')
+    elif request.method == 'POST':
+        return render_template('create.html')
+
+@app.route('/create', methods=['POST'])
+def create_account():
+    if request.method == 'POST':
+        # Ambil data dari form
+        protocol = request.form['protocol']
+        device = request.form['device']
+        username = request.form['username']
+        expired = request.form['expired']
+
+        # Debugging: Log data yang diterima dari form
+        print(f"Received data - Protocol: {protocol}, Device: {device} Username: {username}, Expired: {expired}")
+
+    # Menjalankan skrip shell dengan input dari user
+    try:
+        # Debugging: Log sebelum menjalankan skrip shell
+        print(f"Running script for protocol: {protocol} with username: {username} and expired: {expired}")
+
+        # Menjalankan skrip shell dengan memberikan input interaktif (username dan expired)
+        result = subprocess.run(
+            [f"/usr/bin/create_{protocol}"],  # Skrip untuk protokol (vmess, vless, trojan)
+            input=f"{username}\n{expired}\n",  # Memberikan input username dan expired
+            text=True,
+            capture_output=True,
+            check=True
+        )
+        
+        # Jika berhasil, outputnya akan ditangkap oleh result.stdout
+        print(f"Script output: {result.stdout.strip()}")
+        
+      
+        
+    except subprocess.CalledProcessError as e:
+        # Tangkap kesalahan jika terjadi error pada eksekusi skrip shell
+        print(f"Error: {e.stderr.strip()}")
+        output = f"Error: {e.stderr.strip()}"
+        return render_template(
+            'result.html',
+            username=username,
+            device=device,
+            expired=expired,
+            protocol=protocol,
+            output=output
+        )
+
+    # Membaca file output yang dihasilkan oleh skrip shell
+    output_file = f"/root/project/{username}_output.txt"
+    if os.path.exists(output_file):
+        with open(output_file, 'r') as file:
+            output = file.read()
+
+        # Menghapus file output setelah dibaca
+        os.remove(output_file)
+
+    # Mengalihkan ke halaman result
+    return redirect(url_for('result', username=username, device=device, expired=expired, protocol=protocol, output=output))
     
         
 @app.route("/logout")
@@ -486,6 +550,7 @@ def logout():
     session.pop("username", None)
     flash("Anda telah logout.", "info")
     return redirect("/login")
+
 
 if __name__ == "__main__":
     init_db()
