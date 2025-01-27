@@ -5,6 +5,10 @@ import paramiko
 import subprocess
 import json
 import shutil
+import json
+import urllib.parse
+from datetime import datetime
+
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -478,7 +482,23 @@ def get_status():
     
     return jsonify(vps_list)
 
-#------------ TOP UP REQUEST -----------
+#------------ TOP UP REQUEST -------
+# File tempat menyimpan riwayat deposit
+DEPOSIT_FILE = 'deposit.json'
+
+# Fungsi untuk membaca riwayat deposit dari file JSON
+def read_deposit_history():
+    try:
+        with open(DEPOSIT_FILE, 'r') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return []
+
+# Fungsi untuk menulis riwayat deposit ke file JSON
+def write_deposit_history(history):
+    with open(DEPOSIT_FILE, 'w') as f:
+        json.dump(history, f, indent=4)
+
 
 @app.route('/deposit', methods=['GET'])
 def deposit():
@@ -486,7 +506,12 @@ def deposit():
         return redirect('/login')
 
     active_user = session['username']  # Ambil username dari sesi aktif
-    return render_template('deposit.html', username=active_user)
+    deposit_history = read_deposit_history()
+
+    # Menyaring riwayat deposit berdasarkan username
+    user_deposits = [d for d in deposit_history if d['username'] == active_user]
+    
+    return render_template('deposit.html', username=active_user, deposits=user_deposits)
 
 @app.route('/ajukan', methods=['POST'])
 def ajukan():
@@ -497,11 +522,22 @@ def ajukan():
     active_user = session['username']  # Ambil username dari sesi aktif
 
     if jumlah:
+        # Mencatat riwayat deposit
+        deposit_history = read_deposit_history()
+        new_deposit = {
+            'username': active_user,
+            'jumlah': jumlah,
+            'tanggal': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+        deposit_history.append(new_deposit)
+        write_deposit_history(deposit_history)
+
         # Membuat URL WhatsApp dengan format yang sudah ditentukan
-        wa_url = f"https://wa.me/6281234567890?text={urllib.parse.quote(f'PERMINTAAN TOP UP\nUsername: {active_user}\nJumlah: {jumlah}')}"
+        wa_url = f"https://wa.me/6285155208019?text={urllib.parse.quote(f'PERMINTAAN TOP UP\nUsername: {active_user}\nJumlah: {jumlah}')}"
         return redirect(wa_url)
     else:
         return "Jumlah tidak valid", 400
+    
         
 @app.route("/logout")
 def logout():
