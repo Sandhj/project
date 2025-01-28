@@ -614,7 +614,7 @@ def vpn_free():
 
 #--------------- Fungsi Deposit ----------
 # Route utama untuk menampilkan form HTML
-@app.route('/deposit', methods=['POST'])
+@app.route('/deposit', methods=['GET'])
 def deposit():
     return render_template('deposit.html')  # Pastikan file HTML disimpan di folder "templates"
 
