@@ -3,139 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Status VPS</title>
-
-    <!-- Link to Google Fonts (Lato) -->
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
-
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <title>Status Server</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Source+Code+Pro:wght@500&display=swap" rel="stylesheet">
     <style>
-        /* Basic Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Lato', sans-serif; /* Apply Lato font to all elements */
-        }
-
-        /* Body Styles */
         body {
-            background-color: #f4f4f9;
-            display: flex;
-            justify-content: flex-start;
-            align-items: flex-start;
-            flex-direction: column;
-            padding: 20px;
-            height: 100vh;
-            text-align: center; /* Center content horizontally */
-        }
-
-        /* Title Styles */
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 20px;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fb;
             color: #333;
-            font-weight: 700; /* Bold font for title */
-            text-align: center; /* Center align the title */
-            width: 100%;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
         }
 
-        /* Loader Styles */
+        h1 {
+            font-family: 'Source Code Pro', monospace;
+            font-size: 2rem;
+            color: #4b6584;
+            margin-bottom: 30px;
+        }
+
         .loader {
             display: none;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
+            margin: 20px auto;
+            border: 8px solid #e9ecef;
+            border-top: 8px solid #4b6584;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             animation: spin 2s linear infinite;
         }
 
-        /* Spinner Animation */
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Card Container Styles */
         .container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 20px;
-            max-width: 1200px;
-            width: 100%;
-            margin-top: 20px;
         }
 
-        /* Card Styles */
         .card {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            padding: 15px;
-            transition: transform 0.2s;
+            background: linear-gradient(135deg, #ffffff, #f0f2f5);
+            border-radius: 12px;
+            padding: 20px;
+            width: 260px;
+            text-align: left;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
         }
 
-        /* Card Header */
         .card-header {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #333;
-            display: flex;
-            align-items: center;
+            font-family: 'Source Code Pro', monospace;
+            font-size: 1.2rem;
+            color: #4b6584;
+            margin-bottom: 15px;
         }
 
-        /* Status Section */
         .status {
-            display: flex;
-            align-items: center;
-            font-size: 1.1em;
-            margin-bottom: 10px;
+            font-size: 0.95rem;
+            margin: 10px 0;
         }
 
-        .status.on {
+        .on {
             color: #27ae60;
         }
 
-        .status.off {
+        .off {
             color: #e74c3c;
         }
 
-        .icon {
-            margin-right: 10px;
-        }
-
-        /* Latency Section */
         .latency {
-            display: flex;
-            align-items: center;
-            font-size: 1.1em;
-            color: #7f8c8d;
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 10px;
         }
 
-        /* Error Handling */
+        .user-info {
+            font-size: 0.9rem;
+            color: #555;
+            margin-top: 10px;
+        }
+
+        .icon {
+            margin-right: 8px;
+            color: #4b6584;
+        }
+
         .error {
-            background-color: #f2dede;
-            color: #a94442;
-            padding: 15px;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
+            color: #e74c3c;
+            font-size: 1rem;
             margin-top: 20px;
         }
 
-        .error .icon {
-            margin-right: 10px;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <h1>STATUS SERVER</h1>
+    <h1>Status Server</h1>
     <div class="loader" id="loader"></div>
     <div class="container"></div>
 
@@ -144,7 +115,7 @@
             const container = document.querySelector('.container');
             const loader = document.getElementById('loader');
 
-            // Loader hanya tampil saat pertama kali.
+            // Tampilkan loader hanya saat pertama kali memuat data
             if (container.innerHTML === '') {
                 loader.style.display = 'block';
             }
@@ -158,14 +129,20 @@
                     const card = document.createElement('div');
                     card.className = 'card';
 
-                    // Menambahkan ikon status berdasarkan status VPS
+                    // Ikon status berdasarkan status VPS
                     const statusIcon = vps.status === 'ON'
-                        ? '<i class="fa-solid fa-check-circle icon" style="color: #00ff00;"></i>'
-                        : '<i class="fa-solid fa-times-circle icon" style="color: #ff0000;"></i>';
+                        ? '<i class="fa-solid fa-check-circle icon" style="color: #27ae60;"></i>'
+                        : '<i class="fa-solid fa-times-circle icon" style="color: #e74c3c;"></i>';
 
-                    // Menambahkan ikon untuk nama VPS dan latency
+                    // Ikon untuk nama VPS dan latency
                     const nameIcon = '<i class="fa-solid fa-server icon"></i>';
                     const latencyIcon = '<i class="fa-solid fa-wifi icon"></i>';
+
+                    // Informasi pengguna
+                    const userInfo = `<div class="user-info">
+                                        <i class="fa-solid fa-users icon"></i>
+                                        User: ${vps.current_users}/${vps.max_user}
+                                      </div>`;
 
                     card.innerHTML = `
                         <div class="card-header">
@@ -177,6 +154,7 @@
                         <div class="latency">
                             ${latencyIcon} Latency: ${vps.latency || '-'}
                         </div>
+                        ${userInfo}
                     `;
                     container.appendChild(card);
                 });
@@ -184,15 +162,15 @@
                 console.error('Error fetching status:', error);
                 container.innerHTML = `
                     <div class="error">
-                        <i class="fa-solid fa-exclamation-circle icon" style="color: #ff0000;"></i>
+                        <i class="fa-solid fa-exclamation-circle icon"></i>
                         Error fetching data. Please try again later.
                     </div>`;
             } finally {
                 loader.style.display = 'none';
             }
         }
-        setInterval(fetchStatus, 50000);
-        window.onload = fetchStatus;
+        setInterval(fetchStatus, 50000);  // Memperbarui status setiap 50 detik
+        window.onload = fetchStatus;  // Memuat status saat pertama kali halaman dimuat
     </script>
 </body>
 </html>
