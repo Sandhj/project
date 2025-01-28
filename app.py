@@ -439,8 +439,8 @@ def add_balance():
 
     return render_template("add_balance.html")
 
-#------------- Home Template ------------
-# Fungsi untuk memeriksa status dan latensi VPS
+#------------- Home Template -----------
+#Fungsi untuk memeriksa status VPS (ping)
 def check_vps_status(hostname):
     try:
         # Perintah ping ke setiap VPS
@@ -462,23 +462,56 @@ def check_vps_status(hostname):
     except Exception as e:
         return {"status": "OFF", "latency": "-"}
 
+# Fungsi untuk mendapatkan jumlah pengguna (current) melalui SSH
+def get_current_users(hostname, username, password):
+    try:
+        # Setup SSH client
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())  # Menerima host key yang tidak dikenal
+        
+        # Connect to the server
+        ssh.connect(hostname, username=username, password=password)
+
+        # Jalankan script user.sh dan ambil outputnya
+        stdin, stdout, stderr = ssh.exec_command("/root/user.sh")
+        output = stdout.read().decode().strip()  # Ambil hasil output
+        
+        ssh.close()
+        
+        # Kembalikan jumlah user yang sedang aktif (current) sebagai integer
+        return int(output)
+    except Exception as e:
+        print(f"Error: {e}")
+        return None  # Jika gagal, kembalikan None
+
+# Route untuk halaman utama
 @app.route("/home")
 def home():
     return render_template("home.html")
 
+# Route untuk mendapatkan status VPS dan informasi lainnya
 @app.route("/status", methods=["GET"])
 def get_status():
     # Membaca data dari file JSON
     with open('server.json') as f:
         vps_list = json.load(f)
     
+    # Set max_user
+    max_user = 20
+
     # Memeriksa status masing-masing VPS
     for vps in vps_list:
         vps_status = check_vps_status(vps["hostname"])
         vps["status"] = vps_status["status"]
         vps["latency"] = vps_status["latency"]
+        
+        # Ambil current user menggunakan paramiko
+        current_users = get_current_users(vps["hostname"], vps["username"], vps["password"])  # Pastikan menambahkan username dan password di server.json
+        vps["current_users"] = current_users if current_users is not None else 0
+        vps["max_user"] = max_user
     
     return jsonify(vps_list)
+
 
 # ---------------Fungsi Create FREE VPN Account------------
 @app.route('/vpn_free_temp', methods=['GET', 'POST'])
