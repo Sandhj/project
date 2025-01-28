@@ -7,6 +7,9 @@ import json
 import shutil
 import json
 import urllib.parse
+from datetime import datetime, timedelta
+from apscheduler.schedulers.background import BackgroundScheduler
+
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -25,11 +28,13 @@ def close_connection(exception):
     if db is not None:
         db.close()
 
-# Initialize database
+# Initialize Database
 def init_db():
     with app.app_context():
         db = get_db()
         cursor = db.cursor()
+
+        # Users Table
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,7 +43,55 @@ def init_db():
                 balance INTEGER DEFAULT 0
             )
         ''')
+
+        # Active Transactions Table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS active_transactions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL,
+                device TEXT NOT NULL,
+                protocol TEXT NOT NULL,
+                expired INTEGER NOT NULL,
+                daily_cost INTEGER NOT NULL,
+                start_date TEXT NOT NULL,
+                end_date TEXT NOT NULL
+            )
+        ''')
         db.commit()
+
+# Scheduler Function
+def deduct_daily_cost():
+    db = get_db()
+    cursor = db.cursor()
+
+    # Get all active transactions
+    cursor.execute("SELECT * FROM active_transactions")
+    transactions = cursor.fetchall()
+
+    for transaction in transactions:
+        username = transaction['username']
+        daily_cost = transaction['daily_cost']
+        end_date = datetime.strptime(transaction['end_date'], '%Y-%m-%d')
+        today = datetime.now()
+
+        # If the transaction is still active
+        if today <= end_date:
+            cursor.execute("SELECT balance FROM users WHERE username = ?", (username,))
+            user_data = cursor.fetchone()
+            current_balance = user_data['balance']
+
+            if current_balance >= daily_cost:
+                new_balance = current_balance - daily_cost
+                cursor.execute("UPDATE users SET balance = ? WHERE username = ?", (new_balance, username))
+            else:
+                # If balance is insufficient, cancel the transaction
+                cursor.execute("DELETE FROM active_transactions WHERE id = ?", (transaction['id'],))
+                print(f"Transaction for {username} canceled due to insufficient balance.")
+        else:
+            # Remove transactions that have ended
+            cursor.execute("DELETE FROM active_transactions WHERE id = ?", (transaction['id'],))
+
+    db.commit()
 
 @app.route("/")
 def login_temp():
@@ -103,41 +156,45 @@ def admin_dashboard():
     return render_template("dash_admin.html", username=username, balance=balance)
 
 # -------------------create account premium --------------------
+# Scheduler Initialization
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=deduct_daily_cost, trigger="interval", hours=24)
 
-# Fungsi untuk membaca daftar VPS dari file server.json
+@app.before_first_request
+def start_scheduler():
+    scheduler.start()
+
+@app.teardown_appcontext
+def shutdown_scheduler(exception=None):
+    scheduler.shutdown()
+
+# Function to Get VPS List
 def get_vps_list():
     with open('server.json', 'r') as f:
         return json.load(f)
 
-# Fungsi untuk menghubungkan ke VPS dan menjalankan skrip
+# Function to Connect to VPS and Run Script
 def run_script_on_vps(vps, protocol, username, expired):
     try:
-        # Koneksi SSH ke VPS
         ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())  # Menambahkan host key jika tidak ada
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(vps['hostname'], username=vps['username'], password=vps['password'])
 
-        # Jalankan skrip di VPS
         command = f"/usr/bin/create_{protocol}"
         stdin, stdout, stderr = ssh.exec_command(command)
         stdin.write(f"{username}\n{expired}\n")
         stdin.flush()
 
-        # Ambil output dari skrip
         output = stdout.read().decode('utf-8')
-
         ssh.close()
-        
-        return output
 
+        return output
     except Exception as e:
-        print(f"Error: {str(e)}")
         return f"Error: {str(e)}"
 
-
+# Routes
 @app.route('/vps-list', methods=['GET'])
 def vps_list():
-    # Mengirimkan daftar VPS ke frontend
     return jsonify(get_vps_list())
 
 @app.route('/create_temp', methods=['GET'])
@@ -146,56 +203,52 @@ def create_account_temp():
 
 @app.route('/create', methods=['POST'])
 def create_account():
-    # Cek sesi yang aktif
     if 'username' not in session:
         return redirect('/login')
 
-    # Ambil username dari sesi aktif
     active_user = session['username']
-
-    # Ambil data dari form
     protocol = request.form['protocol']
     device = request.form['device']
     username = request.form['username']
-    expired = request.form['expired']
-    vps_name = request.form['vps']  # Nama VPS yang dipilih dari dropdown
-    
-    # Validasi VPS
+    expired = int(request.form['expired'])
+    vps_name = request.form['vps']
+
+    cost_per_device = {'hp': 5000, 'stb': 10000}
+    if device not in cost_per_device:
+        return "Invalid device", 400
+
+    daily_cost = cost_per_device[device] / expired
+
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT balance FROM users WHERE username = ?", (active_user,))
+    user_data = cursor.fetchone()
+
+    if not user_data:
+        flash("Silahkan Login Kembali dan coba lagi", "error")
+        return redirect('/create_temp')
+
+    current_balance = user_data['balance']
+
+    if current_balance < daily_cost:
+        flash("Saldo Kamu Tidak Mencukupi Untuk Membuat Akun.", "error")
+        return redirect('/create_temp')
+
+    start_date = datetime.now()
+    end_date = start_date + timedelta(days=expired)
+    cursor.execute(
+        "INSERT INTO active_transactions (username, device, protocol, expired, daily_cost, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (active_user, device, protocol, expired, daily_cost, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d'))
+    )
+    db.commit()
+
     vps_list = get_vps_list()
     vps = next((v for v in vps_list if v['name'] == vps_name), None)
 
     if not vps:
-        return "VPS tidak ditemukan", 400
+        flash("VPS not found.", "error")
+        return redirect('/create_temp')
 
-    print(f"Received data - Protocol: {protocol}, Device: {device}, Username: {username}, Expired: {expired}")
-
-    # Simpan data user ke file JSON
-    data = {
-        "protocol": protocol,
-        "username": username,
-        "expired": expired,
-        "created_by": active_user  # Menyimpan siapa yang membuat data ini
-    }
-    file_path = '/root/project/data_user.json'
-
-    try:
-        # Buka file JSON, tambahkan data baru, lalu simpan kembali
-        try:
-            with open(file_path, 'r') as json_file:
-                existing_data = json.load(json_file)
-        except (FileNotFoundError, json.JSONDecodeError):
-            existing_data = []  # Jika file tidak ada atau kosong, mulai dengan list kosong
-
-        existing_data.append(data)
-
-        with open(file_path, 'w') as json_file:
-            json.dump(existing_data, json_file, indent=4)
-        
-        print(f"Data saved successfully to {file_path}")
-    except Exception as e:
-        return f"Error saving data to JSON file: {str(e)}", 500
-
-    # Menjalankan skrip shell di VPS yang dipilih
     output = run_script_on_vps(vps, protocol, username, expired)
 
     return render_template(
@@ -204,12 +257,13 @@ def create_account():
         device=device,
         expired=expired,
         protocol=protocol,
-        output=output
+        output=output,
+        daily_cost=daily_cost,
+        balance=current_balance
     )
-    
+
 @app.route('/result')
 def result():
-    # Ambil data yang diterima dari URL dan tampilkan di result.html
     device = request.args.get('device')
     username = request.args.get('username')
     expired = request.args.get('expired')
@@ -223,7 +277,7 @@ def result():
         protocol=protocol,
         device=device,
         output=output,
-    )
+    )  
 
 #------------- add & delete server -----------
 
