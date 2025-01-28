@@ -103,6 +103,28 @@ def admin_dashboard():
     return render_template("dash_admin.html", username=username, balance=balance)
 
 # -------------------create account premium ----------------
+
+# Fungsi untuk mendapatkan jumlah pengguna (current) melalui SSH
+def get_current_users_vpn(hostname, username, password):
+    try:
+        # Setup SSH client
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())  # Menerima host key yang tidak dikenal
+        
+        # Connect to the server
+        ssh.connect(hostname, username=username, password=password)
+
+        # Jalankan script user.sh dan ambil outputnya
+        stdin, stdout, stderr = ssh.exec_command("/root/user.sh")
+        output = stdout.read().decode().strip()  # Ambil hasil output
+        
+        ssh.close()
+        
+        # Kembalikan jumlah user yang sedang aktif (current) sebagai integer
+        return int(output)
+    except Exception as e:
+        print(f"Error: {e}")
+        return None  # Jika gagal, kembalikan None
 # Fungsi untuk mendapatkan daftar VPS dari file server.json
 def get_vps_list():
     with open('server.json', 'r') as f:
@@ -120,7 +142,7 @@ def vps_list():
     
     # Memeriksa jumlah pengguna (current) pada masing-masing VPS
     for vps in vps_list:
-        current_users = get_current_users(vps["hostname"], vps["username"], vps["password"])
+        current_users = get_current_users_vpn(vps["hostname"], vps["username"], vps["password"])
         
         # Jika jumlah pengguna belum mencapai max_user, tambahkan ke daftar
         if current_users is not None and current_users < max_user:
