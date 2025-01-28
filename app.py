@@ -93,11 +93,11 @@ def deduct_daily_cost():
 
     db.commit()
 
-# Scheduler Initialization
+# Scheduler initialization
 scheduler = BackgroundScheduler()
 scheduler.add_job(func=deduct_daily_cost, trigger="interval", hours=24)
 
-@app.before_first_request
+@app.before_serving
 def start_scheduler():
     scheduler.start()
 
