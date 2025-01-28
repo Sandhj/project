@@ -102,12 +102,34 @@ def admin_dashboard():
     balance = user["balance"] if user else 0
     return render_template("dash_admin.html", username=username, balance=balance)
 
-# -------------------create account premium --------------------
-
-# Fungsi untuk membaca daftar VPS dari file server.json
+# -------------------create account premium ----------------
+# Fungsi untuk mendapatkan daftar VPS dari file server.json
 def get_vps_list():
     with open('server.json', 'r') as f:
         return json.load(f)
+
+@app.route('/vps-list', methods=['GET'])
+def vps_list():
+    # Membaca daftar VPS dari file JSON
+    vps_list = get_vps_list()
+    
+    # Set max_user
+    max_user = 20
+    
+    filtered_vps = []
+    
+    # Memeriksa jumlah pengguna (current) pada masing-masing VPS
+    for vps in vps_list:
+        current_users = get_current_users(vps["hostname"], vps["username"], vps["password"])
+        
+        # Jika jumlah pengguna belum mencapai max_user, tambahkan ke daftar
+        if current_users is not None and current_users < max_user:
+            vps["current_users"] = current_users
+            vps["max_user"] = max_user
+            filtered_vps.append(vps)
+    
+    # Mengirimkan daftar VPS yang belum mencapai max_user
+    return jsonify(filtered_vps)
 
 # Fungsi untuk menghubungkan ke VPS dan menjalankan skrip
 def run_script_on_vps(vps, protocol, username, expired):
@@ -133,12 +155,6 @@ def run_script_on_vps(vps, protocol, username, expired):
     except Exception as e:
         print(f"Error: {str(e)}")
         return f"Error: {str(e)}"
-
-
-@app.route('/vps-list', methods=['GET'])
-def vps_list():
-    # Mengirimkan daftar VPS ke frontend
-    return jsonify(get_vps_list())
 
 @app.route('/create_temp', methods=['GET'])
 def create_account_temp():
