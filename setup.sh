@@ -43,122 +43,180 @@ systemctl enable app.service
 systemctl start app.service
 
 
-# Prompt untuk token bot Telegram dan chat ID
-echo "Masukkan Token Telegram Anda (didapat dari BotFather): "
-read Token_tele
-echo "Masukkan Chat ID Telegram Anda (bisa menggunakan @userinfobot): "
-read id_tele
-
-# Tentukan direktori tempat script dan konfigurasi
-BACKUP_DIR="/root/project/backups"
-PROJECT_DIR="/root/project"
-
-# Buat file backup_bot.py
-cat > $PROJECT_DIR/backup_bot.py << EOF
+cat <<EOL > /root/project/backup.py
 import os
+import shutil
 import zipfile
-import schedule
-import time
-import telebot
-from datetime import datetime
+import requests
 
-# Konfigurasi Token Bot Telegram
-BOT_TOKEN = "$Token_tele"
-CHAT_ID = "$id_tele"
+# Konfigurasi
+project_dir = "/root/project/"
+backup_dir = os.path.join(project_dir, "backup")
+files_to_backup = ["database.db", "list_xl.json", "server.json"]
+zip_filename = "backup.zip"
+telegram_token = "7360190308:AAH79nXyUiU4TRscBtYRLg14WVNfi1q1T1M"
+chat_id = "576495165"
 
-# Direktori dan file yang akan di-backup
-FILES_TO_BACKUP = [
-    "/root/project/database.db",
-    "/root/project/list_xl.json",
-    "/root/project/server.json",
-]
-BACKUP_DIR = "/root/project/backups"
-ZIP_FILENAME = os.path.join(BACKUP_DIR, "backup.zip")
+# Membuat folder backup jika belum ada
+if not os.path.exists(backup_dir):
+    os.makedirs(backup_dir)
 
-# Inisialisasi Bot Telegram
-bot = telebot.TeleBot(BOT_TOKEN)
-
-# Membuat ZIP file dari daftar file
-def create_zip():
-    os.makedirs(BACKUP_DIR, exist_ok=True)  # Membuat direktori backup jika belum ada
-    with zipfile.ZipFile(ZIP_FILENAME, "w") as backup_zip:
-        for file in FILES_TO_BACKUP:
-            if os.path.exists(file):
-                backup_zip.write(file, os.path.basename(file))
-            else:
-                print(f"File tidak ditemukan: {file}")
-    print(f"ZIP file berhasil dibuat: {ZIP_FILENAME}")
-
-# Mengirim ZIP file ke Telegram
-def send_backup_to_telegram():
-    create_zip()
-    with open(ZIP_FILENAME, "rb") as zip_file:
-        bot.send_document(chat_id=CHAT_ID, document=zip_file, caption="Backup Otomatis")
-    print("Backup berhasil dikirim ke Telegram.")
-
-# Jadwal backup
-SCHEDULE_TIMES = [1, 3, 6, 9, 12, 13, 18, 22]
-for hour in SCHEDULE_TIMES:
-    schedule.every().day.at(f"{hour:02}:00").do(send_backup_to_telegram)
-
-# Looping jadwal
-print("Menjalankan jadwal backup...")
-while True:
-    schedule.run_pending()
-    time.sleep(1)
-EOF
-
-# Buat file restore_bot.py
-cat > $PROJECT_DIR/restore_bot.py << EOF
-import os
-import telebot
-
-# Konfigurasi Token Bot Telegram
-BOT_TOKEN = "$Token_tele"
-
-# Direktori backup
-BACKUP_DIR = "/root/project/backups"
-ZIP_FILENAME = os.path.join(BACKUP_DIR, "backup.zip")
-
-# Inisialisasi Bot Telegram
-bot = telebot.TeleBot(BOT_TOKEN)
-
-# Command untuk restore file
-@bot.message_handler(commands=["restore"])
-def restore_backup(message):
-    if os.path.exists(ZIP_FILENAME):
-        with open(ZIP_FILENAME, "rb") as zip_file:
-            bot.send_document(chat_id=message.chat.id, document=zip_file, caption="Berikut adalah file backup terakhir.")
+# Memindahkan file ke folder backup
+for file in files_to_backup:
+    src = os.path.join(project_dir, file)
+    dest = os.path.join(backup_dir, file)
+    if os.path.exists(src):
+        shutil.copy2(src, dest)
     else:
-        bot.reply_to(message, "File backup tidak ditemukan.")
+        print(f"File {file} tidak ditemukan di {project_dir}")
 
-# Menjalankan bot
-print("Bot Telegram untuk restore sedang berjalan...")
-bot.infinity_polling()
-EOF
+# Membuat zip dari folder backup
+zip_path = os.path.join(project_dir, zip_filename)
+with zipfile.ZipFile(zip_path, 'w') as zipf:
+    for root, _, files in os.walk(backup_dir):
+        for file in files:
+            file_path = os.path.join(root, file)
+            arcname = os.path.relpath(file_path, backup_dir)
+            zipf.write(file_path, arcname)
 
-# Buat systemd service untuk backup bot
-cat > /etc/systemd/system/backup_bot.service << EOF
+# Mengirim file ke bot Telegram
+def send_to_telegram(file_path):
+    url = f"https://api.telegram.org/bot{telegram_token}/sendDocument"
+    with open(file_path, 'rb') as file:
+        response = requests.post(
+            url, 
+            data={"chat_id": chat_id}, 
+            files={"document": file}
+        )
+    if response.status_code == 200:
+        print("Backup berhasil dikirim ke Telegram.")
+    else:
+        print(f"Error mengirim backup: {response.text}")
+
+# Mengirim file zip
+send_to_telegram(zip_path)
+EOL
+
+#pasang service backup
+
+# Variabel
+PROJECT_DIR="/root/project"
+BACKUP_SCRIPT="$PROJECT_DIR/backup.py"
+SERVICE_FILE="/etc/systemd/system/backup.service"
+TIMER_FILE="/etc/systemd/system/backup.timer"
+
+# Pastikan script backup.py ada
+if [ ! -f "$BACKUP_SCRIPT" ]; then
+    echo "File backup.py tidak ditemukan di $PROJECT_DIR"
+    exit 1
+fi
+
+echo "Membuat systemd service dan timer untuk backup..."
+
+# Membuat file service
+cat <<EOF | sudo tee $SERVICE_FILE > /dev/null
 [Unit]
-Description=Backup Bot Service
+Description=Backup Service
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 $PROJECT_DIR/backup_bot.py
-Restart=always
+Type=simple
+ExecStart=/usr/bin/python3 $BACKUP_SCRIPT
+WorkingDirectory=$PROJECT_DIR
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
 EOF
 
-# Aktifkan dan mulai service backup bot
-systemctl enable backup_bot.service
-systemctl start backup_bot.service
+# Membuat file timer
+cat <<EOF | sudo tee $TIMER_FILE > /dev/null
+[Unit]
+Description=Run Backup Service Every 3 Hours
 
-# Menambahkan cron job untuk menjalankan backup bot pada reboot
-(crontab -l ; echo "@reboot /usr/bin/python3 $PROJECT_DIR/backup_bot.py") | crontab -
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=3h
+Unit=backup.service
 
-# Selesai
-echo "Setup selesai. Backup bot dan restore bot telah dikonfigurasi."
-echo "Backup bot telah dijalankan dan akan berjalan otomatis setiap reboot."
-echo "Untuk restore, jalankan bot restore dengan perintah: python3 $PROJECT_DIR/restore_bot.py"
+[Install]
+WantedBy=timers.target
+EOF
+
+# Reload systemd
+sudo systemctl daemon-reload
+
+# Mengaktifkan dan memulai timer
+sudo systemctl enable backup.timer
+sudo systemctl start backup.timer
+
+echo "Setup selesai. Backup akan berjalan setiap 3 jam."
+
+# Restore
+cat <<EOL > /root/project/restore.py
+import os
+import zipfile
+import requests
+
+# Konfigurasi
+project_dir = "/root/project/"
+backup_file = os.path.join(project_dir, "backup.zip")
+telegram_token = "7360190308:AAH79nXyUiU4TRscBtYRLg14WVNfi1q1T1M"
+chat_id = "576495165"
+
+# Fungsi untuk mendownload file dari bot Telegram
+def download_backup():
+    print("Menunggu file backup.zip...")
+    url = f"https://api.telegram.org/bot{telegram_token}/getUpdates"
+    response = requests.get(url)
+    
+    if response.status_code == 200:
+        updates = response.json()
+        # Cari pesan terakhir dengan file
+        for update in reversed(updates.get("result", [])):
+            if "document" in update.get("message", {}):
+                document = update["message"]["document"]
+                file_id = document["file_id"]
+                file_name = document["file_name"]
+                if file_name == "backup.zip":
+                    print("File backup.zip ditemukan.")
+                    # Dapatkan URL untuk mendownload file
+                    file_url = f"https://api.telegram.org/bot{telegram_token}/getFile?file_id={file_id}"
+                    file_path = requests.get(file_url).json()["result"]["file_path"]
+                    download_url = f"https://api.telegram.org/file/bot{telegram_token}/{file_path}"
+                    
+                    # Download file
+                    response = requests.get(download_url, stream=True)
+                    if response.status_code == 200:
+                        with open(backup_file, "wb") as f:
+                            f.write(response.content)
+                        print("File backup.zip berhasil didownload.")
+                        return True
+                    else:
+                        print("Gagal mendownload file backup.zip.")
+                        return False
+    else:
+        print("Gagal mendapatkan pembaruan dari Telegram.")
+        return False
+
+# Fungsi untuk mengekstrak file backup
+def restore_backup():
+    if os.path.exists(backup_file):
+        print("Mengekstrak file backup.zip...")
+        with zipfile.ZipFile(backup_file, "r") as zipf:
+            zipf.extractall(project_dir)
+        print("Restore selesai. File telah dikembalikan ke direktori:")
+        print(f"- {project_dir}")
+    else:
+        print("File backup.zip tidak ditemukan.")
+
+# Proses restore
+if download_backup():
+    restore_backup()
+else:
+    print("Proses restore gagal.")
+
+EOL
+
+
+
