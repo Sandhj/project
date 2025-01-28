@@ -161,7 +161,7 @@ def create_account():
     vps_name = request.form['vps']  # Nama VPS yang dipilih dari dropdown
 
     # Logika pengurangan saldo
-    cost_per_device = {'hp': 5000, 'stb': 10000}  # Biaya per device
+    cost_per_device = {'hp': 4000, 'stb': 8000}  # Biaya per device
     cost_per_expired = {30: 1, 60: 2, 90: 3, 120: 4}  # Faktor pengganda berdasarkan expired
 
     # Validasi device dan expired
