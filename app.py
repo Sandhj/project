@@ -551,7 +551,8 @@ def get_status():
     return jsonify(vps_list)
 
 
-# ---------------Fungsi Create FREE VPN Account------------
+# ---------------Fungsi Create FREE VPN Account-----------
+
 @app.route('/vpn_free_temp', methods=['GET', 'POST'])
 def vpn_free_temp():
     return render_template('vpn_free.html')
@@ -566,53 +567,67 @@ def vpn_free():
         expired = request.form['expired']
 
         # Debugging: Log data yang diterima dari form
-        print(f"Received data - Protocol: {protocol}, Device: {device} Username: {username}, Expired: {expired}")
+        print(f"Received data - Protocol: {protocol}, Device: {device}, Username: {username}, Expired: {expired}")
 
-    # Menjalankan skrip shell dengan input dari user
-    try:
-        # Debugging: Log sebelum menjalankan skrip shell
-        print(f"Running script for protocol: {protocol} with username: {username} and expired: {expired}")
+        # Konfigurasi koneksi ke VPS lain
+        remote_host = "178.128.86.18"
+        remote_port = 22
+        remote_user = "root"
+        remote_password = "@1Vpsbysan"
 
-        # Menjalankan skrip shell dengan memberikan input interaktif (username dan expired)
-        result = subprocess.run(
-            [f"/usr/bin/create_{protocol}"],  # Skrip untuk protokol (vmess, vless, trojan)
-            input=f"{username}\n{expired}\n",  # Memberikan input username dan expired
-            text=True,
-            capture_output=True,
-            check=True
-        )
-        
-        # Jika berhasil, outputnya akan ditangkap oleh result.stdout
-        print(f"Script output: {result.stdout.strip()}")
-        
-      
-        
-    except subprocess.CalledProcessError as e:
-        # Tangkap kesalahan jika terjadi error pada eksekusi skrip shell
-        print(f"Error: {e.stderr.strip()}")
-        output = f"Error: {e.stderr.strip()}"
-        return render_template(
-            'result.html',
-            username=username,
-            device=device,
-            expired=expired,
-            protocol=protocol,
-            output=output
-        )
+        try:
+            # Membuat koneksi SSH
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(hostname=remote_host, port=remote_port, username=remote_user, password=remote_password)
 
-    # Membaca file output yang dihasilkan oleh skrip shell
-    output_file = f"/root/project/{username}_output.txt"
-    if os.path.exists(output_file):
-        with open(output_file, 'r') as file:
-            output = file.read()
+            # Menjalankan perintah di VPS lain
+            command = f"echo -e '{username}\n{expired}' | /usr/bin/create_{protocol}"
+            stdin, stdout, stderr = ssh.exec_command(command)
 
-        # Menghapus file output setelah dibaca
-        os.remove(output_file)
+            # Membaca output dan error dari perintah yang dijalankan
+            output = stdout.read().decode().strip()
+            error = stderr.read().decode().strip()
 
-    # Mengalihkan ke halaman result
-    return redirect(url_for('result', username=username, device=device, expired=expired, protocol=protocol, output=output))
+            # Debugging: Log output dan error
+            print(f"Output: {output}")
+            print(f"Error: {error}")
 
-#--------------- Fungsi Deposit ----------
+            ssh.close()
+
+            # Jika ada error, tampilkan di hasil render
+            if error:
+                return render_template(
+                    'result.html',
+                    username=username,
+                    device=device,
+                    expired=expired,
+                    protocol=protocol,
+                    output=f"Error: {error}"
+                )
+
+            # Jika berhasil, kirim output ke template
+            return render_template(
+                'result.html',
+                username=username,
+                device=device,
+                expired=expired,
+                protocol=protocol,
+                output=output
+            )
+        except Exception as e:
+            # Jika terjadi error dalam koneksi SSH
+            print(f"SSH connection error: {str(e)}")
+            return render_template(
+                'result.html',
+                username=username,
+                device=device,
+                expired=expired,
+                protocol=protocol,
+                output=f"SSH connection error: {str(e)}"
+            )
+
+#--------------- Fungsi Deposit -----------
 # Route utama untuk menampilkan form HTML
 @app.route('/deposit', methods=['GET'])
 def deposit():
