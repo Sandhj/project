@@ -553,6 +553,7 @@ def get_status():
 
 # ---------------Fungsi Create FREE VPN Account-----------
 
+
 @app.route('/vpn_free_temp', methods=['GET', 'POST'])
 def vpn_free_temp():
     return render_template('vpn_free.html')
@@ -583,11 +584,11 @@ def vpn_free():
 
             # Menjalankan perintah di VPS lain
             command = f"echo -e '{username}\n{expired}' | /usr/bin/create_{protocol}"
-            stdin, stdout, stderr = ssh.exec_command(command)
+            stdin, stdout, stderr = ssh.exec_command(command, get_pty=True)
 
             # Membaca output dan error dari perintah yang dijalankan
-            output = stdout.read().decode().strip()
-            error = stderr.read().decode().strip()
+            output = stdout.read().decode().strip()  # Output dari VPS
+            error = stderr.read().decode().strip()  # Error dari VPS
 
             # Debugging: Log output dan error
             print(f"Output: {output}")
