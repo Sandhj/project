@@ -93,6 +93,19 @@ def deduct_daily_cost():
 
     db.commit()
 
+# Scheduler Initialization
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=deduct_daily_cost, trigger="interval", hours=24)
+
+@app.before_first_request
+def start_scheduler():
+    scheduler.start()
+
+@app.teardown_appcontext
+def shutdown_scheduler(exception=None):
+    scheduler.shutdown()
+
+
 @app.route("/")
 def login_temp():
     if "username" in session:
@@ -156,17 +169,6 @@ def admin_dashboard():
     return render_template("dash_admin.html", username=username, balance=balance)
 
 # -------------------create account premium --------------------
-# Scheduler Initialization
-scheduler = BackgroundScheduler()
-scheduler.add_job(func=deduct_daily_cost, trigger="interval", hours=24)
-
-@app.before_first_request
-def start_scheduler():
-    scheduler.start()
-
-@app.teardown_appcontext
-def shutdown_scheduler(exception=None):
-    scheduler.shutdown()
 
 # Function to Get VPS List
 def get_vps_list():
