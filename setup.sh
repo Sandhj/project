@@ -218,5 +218,6 @@ else:
 
 EOL
 
-
+cd
+rm -r setup.sh
 
