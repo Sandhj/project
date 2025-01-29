@@ -3,11 +3,9 @@
 cd
 apt update 
 sudo apt install git
-
-git clone https://github.com/Sandhj/project.git
-
 apt install python3.11-venv
 
+git clone https://github.com/Sandhj/project.git
 cd project
 python3 -m venv web
 source web/bin/activate
@@ -219,6 +217,16 @@ else:
     print("Proses restore gagal.")
 
 EOL
+
+#install Nginx
+sudo apt update
+sudo apt install nginx -y
+
+cd /etc/nginx/sites-available/
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/web.easyvpn.biz.id
+sudo ln -s /etc/nginx/sites-available/web.easyvpn.biz.id /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
 
 cd
 rm -r setup.sh
