@@ -571,7 +571,7 @@ def vpn_free():
         print(f"Received data - Protocol: {protocol}, Device: {device}, Username: {username}, Expired: {expired}")
 
         # Konfigurasi koneksi ke VPS lain
-        remote_host = "178.128.86.18"
+        remote_host = "IP_VPS_FREE"
         remote_port = 22
         remote_user = "root"
         remote_password = "@1Vpsbysan"
