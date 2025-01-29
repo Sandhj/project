@@ -219,6 +219,7 @@ else:
 EOL
 
 # Setup Nginx
+ip=$(curl -s http://checkip.amazonaws.com)
 sudo apt update
 sudo apt install nginx
 
@@ -228,7 +229,7 @@ server {
     server_name web.easyvpn.biz.id;
 
     location / {
-        proxy_pass http://143.198.88.146:5003;  # Ganti dengan alamat Flask Anda
+        proxy_pass http://$ip:5003;  # Ganti dengan alamat Flask Anda
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
