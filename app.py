@@ -494,7 +494,7 @@ def check_vps_status(hostname):
                 if "time=" in line:
                     latency = line.split("time=")[1].split(" ")[0]
                     # Ubah latensi ke milidetik (ms)
-                    latency_ms = int(float(latency) * 1000)
+                    latency_ms = int(float(latency) * 500)
                     return {"status": "ON", "latency": f"{latency_ms} ms"}
         return {"status": "OFF", "latency": "-"}
     except Exception as e:
