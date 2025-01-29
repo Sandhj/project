@@ -136,7 +136,7 @@ def vps_list():
     vps_list = get_vps_list()
     
     # Set max_user
-    max_user = 20
+    max_user = 25
     
     filtered_vps = []
     
@@ -535,7 +535,7 @@ def get_status():
         vps_list = json.load(f)
     
     # Set max_user
-    max_user = 20
+    max_user = 25
 
     # Memeriksa status masing-masing VPS
     for vps in vps_list:
