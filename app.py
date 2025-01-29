@@ -5,7 +5,6 @@ import paramiko
 import subprocess
 import json
 import shutil
-import json
 import urllib.parse
 
 app = Flask(__name__)
@@ -357,36 +356,45 @@ def delete_server():
 # Path ke file list_xl.json
 DATA_FILE = '/root/project/list_xl.json'
 
+
+def ensure_data_file_exists():
+    """ Pastikan file list_xl.json ada, jika tidak, buat dengan data default. """
+    if not os.path.exists(DATA_FILE):
+        with open(DATA_FILE, 'w') as file:
+            json.dump({}, file, indent=4)
+
+
 # Endpoint untuk halaman utama
 @app.route('/list_xl')
 def list_xl():
     return render_template('list_xl.html')
 
+
 # Endpoint untuk mendapatkan daftar paket
 @app.route('/get_packages', methods=['GET'])
 def get_packages():
     try:
+        ensure_data_file_exists()
         with open(DATA_FILE, 'r') as file:
             data = json.load(file)
         return jsonify(data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-#----------------------------------
 
-# Path ke file list_xl.json dan backup
-DATA_FILE = '/root/project/list_xl.json'
-
-# Endpoint untuk halaman utama
+# Endpoint untuk halaman tambah paket
 @app.route('/add_list_xl')
 def add_list_xl():
     return render_template('add_list_xl.html')
+
 
 # Endpoint untuk menambahkan paket
 @app.route('/add_package', methods=['POST'])
 def add_package():
     try:
+        ensure_data_file_exists()
         new_package = request.json
+
         with open(DATA_FILE, 'r') as file:
             data = json.load(file)
 
@@ -399,18 +407,21 @@ def add_package():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 # Endpoint untuk memperbarui paket
 @app.route('/update_package/<package_name>', methods=['PUT'])
 def update_package(package_name):
     try:
+        ensure_data_file_exists()
         updated_package = request.json
+
         with open(DATA_FILE, 'r') as file:
             data = json.load(file)
 
         if package_name in data:
             data[updated_package['name']] = updated_package['detail']
             if package_name != updated_package['name']:
-                del data[package_name]  # Hapus nama lama jika diperbarui
+                del data[package_name]  # Hapus entri lama jika nama diperbarui
 
             with open(DATA_FILE, 'w') as file:
                 json.dump(data, file, indent=4)
@@ -421,10 +432,12 @@ def update_package(package_name):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 # Endpoint untuk menghapus paket
 @app.route('/delete_package/<package_name>', methods=['DELETE'])
 def delete_package(package_name):
     try:
+        ensure_data_file_exists()
         with open(DATA_FILE, 'r') as file:
             data = json.load(file)
 
@@ -439,7 +452,7 @@ def delete_package(package_name):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-#-------------- Saldo add -------------
+#-------------- Add Saldo--------------------
 # Route untuk form tambah saldo
 @app.route("/add_balance", methods=["GET", "POST"])
 def add_balance():
