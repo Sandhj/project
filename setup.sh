@@ -217,17 +217,6 @@ else:
     print("Proses restore gagal.")
 
 EOL
-
-#install Nginx
-sudo apt update
-sudo apt install nginx -y
-
-cd /etc/nginx/sites-available/
-wget -q https://raw.githubusercontent.com/Sandhj/project/main/web.easyvpn.biz.id
-sudo ln -s /etc/nginx/sites-available/web.easyvpn.biz.id /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl restart nginx
-
 cd
 rm -r setup.sh
 
