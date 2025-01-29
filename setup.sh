@@ -6,6 +6,8 @@ sudo apt install git
 
 git clone https://github.com/Sandhj/project.git
 
+apt install python3.11-venv
+
 cd project
 python3 -m venv web
 source web/bin/activate
