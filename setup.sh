@@ -220,30 +220,6 @@ else:
 
 EOL
 
-# Setup Nginx
-ip=$(curl -s http://checkip.amazonaws.com)
-sudo apt update
-sudo apt install nginx
-
-cat <<EOL > /etc/nginx/sites-available/web.easyvpn.biz.id
-server {
-    listen 80;
-    server_name web.easyvpn.biz.id;
-
-    location / {
-        proxy_pass http://$ip:5003;  # Pastikan ini adalah alamat Flask Anda
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-EOL
-
-sudo ln -s /etc/nginx/sites-available/web.easyvpn.biz.id /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl restart nginx
-
 cd
 rm -r setup.sh
 
