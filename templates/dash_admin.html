@@ -1,168 +1,196 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SANSTORE PANEL</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-    <style>
-        /* General styling */
-        body {
-            font-family: 'Lato', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-        }
-
-        /* Remove blue outline when button is clicked */
-        .toggle:focus {
-            outline: none;
-        }
-
-        /* Remove highlight effect in Android and Webkit browsers */
-        .toggle, .dropdown a {
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        /* Top bar styling */
-        .top-bar {
-            background-color: #fffff;
-            color: black;
-            padding: 20px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: relative;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-        }
-   
-        .balance-info {
-            margin-left: -150px;
-        } 
-
-        .brand-name {
-            font-size: 1.2em;
-            font-weight: bold;
-        }
-
-        .toggle {
-            font-size: 1.5em;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-            background: none;
-            border: none;
-            color: black;
-        }
-
-        .toggle:hover {
-            transform: scale(1.2);
-        }
-
-        /* Dropdown menu styling */
-        .dropdown {
-            position: absolute;
-            top: 65px;
-            left: 10px;
-            background-color: white;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
-            overflow: hidden;
-            transform: scaleY(0);
-            transform-origin: top;
-            transition: transform 0.3s ease;
-            z-index: 1000;
-        }
-
-        .dropdown.show {
-            transform: scaleY(1);
-        }
-
-        .dropdown a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 15px;
-            text-decoration: none;
-            color: #333;
-            transition: background-color 0.3s ease;
-        }
-
-        .dropdown a:hover {
-            background-color: #aaaaaa;
-        }
-
-        .dropdown a i {
-            color: #1a1a2e;
-        }
-
-        /* Main content styling */
-        .content {
-            height: calc(100vh - 70px);
-            overflow: hidden;
-        }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .brand-name {
-                font-size: 1em;
-            }
-            .toggle {
-                font-size: 1.2em;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UI/UX Model Alternatif dengan Username di Sidebar</title>
+  <!-- Import Google Font: Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Import Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    /* Reset dan Global Style */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #fff;
+      overflow-x: hidden;
+    }
+    /* Top Bar */
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      color: #000;
+      z-index: 1000;
+    }
+    .toggle {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #000;
+      cursor: pointer;
+      margin-right: 20px;
+      outline: none;
+    }
+    .top-bar .title {
+      font-size: 1.2rem;
+      flex: 1;
+    }
+    .top-bar .balance-info {
+      margin-left: 15px;
+      display: flex;
+      align-items: center;
+    }
+    .top-bar .balance-info i {
+      margin-right: 5px;
+    }
+    /* Sidebar Off-Canvas */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 250px;
+      padding: 30px 20px 20px 20px;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+      transform: translateX(-100%);
+      transition: transform 0.3s ease-out;
+      z-index: 1100;
+      overflow-y: auto;
+      background: #fff;
+    }
+    .sidebar.show {
+      transform: translateX(0);
+    }
+    /* Sidebar Header untuk Username */
+    .sidebar-header {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #ddd;
+      text-align: center;
+      color: #000;
+    }
+    .sidebar-header i {
+      margin-right: 8px;
+    }
+    .sidebar a {
+      display: block;
+      padding: 12px 10px;
+      margin: 5px 0;
+      color: #000;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: background 0.2s ease;
+    }
+    .sidebar a:hover {
+      background: #f0f0f0;
+    }
+    .sidebar hr {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 10px 0;
+    }
+    /* Overlay */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.3);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease;
+      z-index: 1050;
+    }
+    .overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    /* Main Content */
+    .content {
+      margin-top: 60px;
+      padding: 0;
+    }
+    iframe {
+      width: 100%;
+      height: calc(100vh - 60px);
+      border: none;
+    }
+  </style>
 </head>
 <body>
-    <!-- Top Bar -->
-    <div class="top-bar">
-        <button class="toggle" onclick="toggleMenu()" id="toggleButton"><i class="fas fa-bars"></i></button>
-        <div class="balance-info"><i class="fas fa-wallet"></i>  Rp{{ balance }}</div>
-        <div class="brand-name"><i class="fas fa-user"></i> {{ username }}</div>
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <button class="toggle" id="toggleButton"><i class="fas fa-bars"></i></button>
+    <div class="title">𝗦𝗮𝗻𝘀𝘁𝗼𝗿𝗲</div>
+    <div class="balance-info"><i class="fas fa-wallet"></i> Rp{{ balance }}</div>
+  </div>
+  
+  <!-- Sidebar Off-Canvas -->
+  <div class="sidebar" id="sidebarMenu">
+    <!-- Header dengan Username -->
+    <div class="sidebar-header">
+      <i class="fas fa-user"></i> {{ username }}
     </div>
+    <a href="/"><i class="fas fa-home"></i> Home</a>
+    <a href="/create_temp" target="content-frame"><i class="fas fa-shield-alt"></i> VPN Premium</a>
+    <a href="/vpn_free_temp" target="content-frame"><i class="fas fa-globe"></i> VPN Free</a>
+    <a href="/list_xl" target="content-frame"><i class="fas fa-bullseye"></i> Tembak XL</a>
+    <a href="/deposit" target="content-frame"><i class="fas fa-wallet"></i> Deposit</a>
+    <hr>
+    <a href="/add_server_temp" target="content-frame"><i class="fas fa-plus"></i> Add Server</a>
+    <a href="/add_balance" target="content-frame"><i class="fas fa-plus"></i> Add Balance</a>
+    <a href="/add_list_xl" target="content-frame"><i class="fas fa-plus"></i> Add List XL</a>
+    <a href="/delete_server" target="content-frame"><i class="fas fa-trash"></i> Delete Server</a>
+    <a href="/logout"><i class="fas fa-sign-out-alt"></i> Keluar</a>
+  </div>
+  
+  <!-- Overlay untuk Sidebar -->
+  <div class="overlay" id="overlay"></div>
+  
+  <!-- Main Content -->
+  <div class="content">
+    <iframe id="content-frame" name="content-frame" src="/home"></iframe>
+  </div>
+  
+  <script>
+    const sidebar = document.getElementById('sidebarMenu');
+    const toggleButton = document.getElementById('toggleButton');
+    const overlay = document.getElementById('overlay');
 
-    <!-- Dropdown Menu -->
-    <div class="dropdown" id="dropdownMenu">
-        <a href="/"><i class="fas fa-home"></i> Home</a>
-        <a href="/create_temp" target="content-frame"><i class="fas fa-shield-alt"></i> VPN Premium</a>
-        <a href="/vpn_free_temp" target="content-frame"><i class="fas fa-globe"></i> VPN Free</a>
-        <a href="/list_xl" target="content-frame"><i class="fas fa-bullseye"></i> Tembak XL</a>
-        <a href="/deposit" target="content-frame"><i class="fas fa-wallet"></i> Deposit</a>
-        <hr width="90%" size="1" color="#cccccc">
-        <a href="/add_server_temp" target="content-frame"><i class="fas fa-add"></i> Add Server</a>
-        <a href="/add_balance" target="content-frame"><i class="fas fa-add"></i> Add Balance</a>
-        <a href="/add_list_xl" target="content-frame"><i class="fas fa-add"></i> Add List XL</a>
-        <a href="/delete_server" target="content-frame"><i class="fas fa-trash"></i> Delete Server</a>
-        <a href="/logout"><i class="fas fa-sign-out"></i> Keluar</a>
-    </div>
-
-    <!-- Main Content -->
-    <div class="content">
-        <iframe id="content-frame" name="content-frame" src="/home"></iframe>
-    </div>
-
-    <script>
-        const dropdown = document.getElementById('dropdownMenu');
-        const toggleButton = document.getElementById('toggleButton');
-
-        function toggleMenu() {
-            dropdown.classList.toggle('show');
-        }
-
-        // Close dropdown when clicking outside of it
-        document.addEventListener('click', function (event) {
-            const isClickInside = toggleButton.contains(event.target) || dropdown.contains(event.target);
-
-            if (!isClickInside) {
-                dropdown.classList.remove('show');
-            }
-        });
-    </script>
+    // Tampilkan atau sembunyikan sidebar dan overlay saat tombol toggle diklik
+    toggleButton.addEventListener('click', function(e) {
+      e.stopPropagation();
+      sidebar.classList.toggle('show');
+      overlay.classList.toggle('show');
+    });
+    
+    // Tutup sidebar saat mengklik overlay
+    overlay.addEventListener('click', function() {
+      sidebar.classList.remove('show');
+      overlay.classList.remove('show');
+    });
+    
+    // Tutup sidebar saat mengklik di luar area sidebar
+    document.addEventListener('click', function(e) {
+      if (!sidebar.contains(e.target) && !toggleButton.contains(e.target)) {
+        sidebar.classList.remove('show');
+        overlay.classList.remove('show');
+      }
+    });
+  </script>
 </body>
 </html>
