@@ -1,213 +1,282 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login to VPS</title>
-    <!-- Menambahkan link ke Font Awesome untuk ikon -->
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-
-    <style>
-        body {
-            font-family: Lato, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: top;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background-color: #fff;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 350px;
-            high: 500px
-        }
-        h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-        }
-        label {
-            font-weight: bold;
-            margin-bottom: 8px;
-            display: block;
-            color: #333;
-        }
-        input, select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        select {
-            cursor: pointer;
-        }
-        input[type="submit"] {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-        input[type="submit"]:hover {
-            background-color: #45a049;
-        }
-        .form-group {
-            margin-bottom: 10px;
-        }
-        .icon {
-            margin-right: 10px;
-        }
-        .error {
-            color: red;
-            font-size: 14px;
-        }
-        /* Flash message container */
-        #flash-messages {
-            margin-bottom: 20px;
-        }
-
-        /* Default styling for flash messages */
-        .alert {
-            padding: 15px;
-            margin: 10px 0;
-            border: 1px solid transparent;
-            border-radius: 4px;
-            font-size: 16px;
-            text-align: center;
-        }
-
-        /* Success message */
-        .alert-success {
-            color: #155724;
-            background-color: #d4edda;
-            border-color: #c3e6cb;
-        }
-
-        /* Error message */
-        .alert-error {
-            color: #721c24;
-            background-color: #f8d7da;
-            border-color: #f5c6cb;
-        }
-
-        /* Info message */
-        .alert-info {
-            color: #0c5460;
-            background-color: #d1ecf1;
-            border-color: #bee5eb;
-        }
-
-        /* Warning message */
-        .alert-warning {
-            color: #856404;
-            background-color: #fff3cd;
-            border-color: #ffeeba;
-        }
-
-        /* Close button for flash messages (optional) */
-        .alert .close {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 18px;
-            font-weight: bold;
-            color: inherit;
-            cursor: pointer;
-        }
-        
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VIP Management - Create Account</title>
+  <!-- Font Awesome untuk ikon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <!-- Google Font: Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    /* Reset & Global Webkit Styling */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+    input, select, textarea, button, .custom-dropdown {
+      -webkit-appearance: none;
+      outline: none;
+    }
+    /* Global Styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0px auto;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 8px;
+    }
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+      text-align: center;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 15px;
+      font-weight: 600;
+      color: #555;
+    }
+    input[type="text"],
+    .custom-dropdown {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+      transition: border 0.3s;
+    }
+    input[type="text"]:focus,
+    .custom-dropdown:hover {
+      border-color: #007bff;
+    }
+    input[type="submit"] {
+      width: 100%;
+      background-color: #007bff;
+      border: none;
+      padding: 12px;
+      color: #fff;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    input[type="submit"]:hover {
+      background-color: #0056b3;
+    }
+    /* Custom Dropdown */
+    .custom-dropdown {
+      position: relative;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #fff;
+    }
+    .custom-dropdown:after {
+      content: "\f078"; /* ikon panah bawah dari Font Awesome */
+      font-family: "Font Awesome 5 Free";
+      font-weight: 900;
+      font-size: 12px;
+      color: #555;
+      position: absolute;
+      right: 10px;
+      pointer-events: none;
+    }
+    .custom-dropdown.selected {
+      color: #333;
+    }
+    /* Modal Dropdown */
+    .dropdown-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+    }
+    .dropdown-modal {
+      background-color: #fff;
+      width: 70%;
+      max-width: 400px;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    .dropdown-modal h3 {
+      margin-top: 0;
+      font-size: 18px;
+      color: #333;
+    }
+    .dropdown-option {
+      padding: 10px;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+    }
+    .dropdown-option:last-child {
+      border-bottom: none;
+    }
+    .dropdown-option:hover {
+      background-color: #f4f7f9;
+    }
+    .dropdown-modal-close {
+      margin-top: 15px;
+      background-color: #dc3545;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .dropdown-modal-close:hover {
+      background-color: #c82333;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h2><i class="fas fa-tasks"></i> VIP MANAGEMENT</h2>
-
-        <!-- Flash Messages -->
-        <div id="flash-messages">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
+  <div class="container">
+    <h2><i class="fas fa-tasks"></i> VIP MANAGEMENT</h2>
+    <form action="/create" method="POST">
+      <!-- VPS Custom Dropdown -->
+      <div class="form-group">
+        <label for="vps"><i class="fas fa-server"></i> Pilih VPS:</label>
+        <div class="custom-dropdown" id="custom-dropdown-vps" data-field="vps" data-placeholder="-- Pilih VPS --">
+          -- Pilih VPS --
         </div>
-
-        <form action="/create" method="POST">
-            <div class="form-group">
-                <label for="vps"><i class="fas fa-server icon"></i>Pilih VPS:</label>
-                <select name="vps" id="vps" required>
-                    <option value="">-- Pilih VPS --</option>
-                    <!-- Dropdown options akan diisi dengan JavaScript -->
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="protocol"><i class="fas fa-network-wired icon"></i>Protocol:</label>
-                <select id="protocol" name="protocol" required>
-                    <option value="vmess">VMESS</option>
-                    <option value="vless">VLESS</option>
-                    <option value="trojan">TROJAN</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="device"><i class="fas fa-mobile-alt icon"></i>Device:</label>
-                <select id="device" name="device" required>
-                    <option value="hp">HP [ Rp5.000 ]</option>
-                    <option value="stb">STB [ Rp10.000 ]</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="username"><i class="fas fa-user icon"></i>Username:</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-
-            <div class="form-group">
-                <label for="expired"><i class="fas fa-calendar-alt icon"></i>Expired (days):</label>
-                <select id="expired" name="expired" required>
-                    <option value="30">30 Hari</option>
-                    <option value="60">60 Hari</option>
-                    <option value="90">90 Hari</option>
-                    <option value="120">120 Hari</option>
-                </select>
-            </div>
-
-            <input type="submit" value="PROSES">
-        </form>
+        <input type="hidden" name="vps" id="input-vps" required>
+      </div>
+      <!-- Protocol Custom Dropdown -->
+      <div class="form-group">
+        <label for="protocol"><i class="fas fa-network-wired"></i> Protocol:</label>
+        <div class="custom-dropdown" id="custom-dropdown-protocol" data-field="protocol" data-placeholder="Pilih Protocol">
+          Pilih Protocol
+        </div>
+        <input type="hidden" name="protocol" id="input-protocol" required>
+      </div>
+      <!-- Device Custom Dropdown -->
+      <div class="form-group">
+        <label for="device"><i class="fas fa-mobile-alt"></i> Device:</label>
+        <div class="custom-dropdown" id="custom-dropdown-device" data-field="device" data-placeholder="Pilih Device">
+          Pilih Device
+        </div>
+        <input type="hidden" name="device" id="input-device" required>
+      </div>
+      <!-- Expired Custom Dropdown -->
+      <div class="form-group">
+        <label for="expired"><i class="fas fa-calendar-alt"></i> Expired (days):</label>
+        <div class="custom-dropdown" id="custom-dropdown-expired" data-field="expired" data-placeholder="Pilih Expired">
+          Pilih Expired
+        </div>
+        <input type="hidden" name="expired" id="input-expired" required>
+      </div>
+      <!-- Username Input -->
+      <div class="form-group">
+        <label for="username"><i class="fas fa-user"></i> Username:</label>
+        <input type="text" id="username" name="username" required>
+      </div>
+      <input type="submit" value="PROSES">
+    </form>
+  </div>
+  
+  <!-- Modal untuk Dropdown -->
+  <div id="dropdown-modal" class="dropdown-modal-overlay">
+    <div class="dropdown-modal">
+      <h3 id="dropdown-modal-title">Pilih</h3>
+      <div id="dropdown-options"></div>
+      <button class="dropdown-modal-close" onclick="closeDropdownModal()">Batal</button>
     </div>
+  </div>
 
-    <script>
-        // Script untuk menyembunyikan flash message setelah beberapa detik
-        setTimeout(() => {
-            const flashMessages = document.getElementById('flash-messages');
-            if (flashMessages) {
-                flashMessages.style.display = 'none';
-            }
-        }, 5000); // Sembunyikan setelah 5 detik
-        
-        // Mengambil data VPS dari backend
-        fetch('/vps-list')
-            .then(response => response.json())
-            .then(data => {
-                const vpsSelect = document.getElementById('vps');
-                data.forEach(vps => {
-                    const option = document.createElement('option');
-                    option.value = vps.name;
-                    option.textContent = vps.name;
-                    vpsSelect.appendChild(option);
-                });
-            })
-            .catch(err => console.log('Error fetching VPS list:', err));
-    </script>
+  <script>
+    // Data opsi untuk masing-masing field
+    const dropdownOptions = {
+      protocol: [
+        { value: 'vmess', label: 'VMESS' },
+        { value: 'vless', label: 'VLESS' },
+        { value: 'trojan', label: 'TROJAN' }
+      ],
+      device: [
+        { value: 'hp', label: 'HP [ Rp5.000 ]' },
+        { value: 'stb', label: 'STB [ Rp10.000 ]' }
+      ],
+      expired: [
+        { value: '30', label: '30 Hari' },
+        { value: '60', label: '60 Hari' },
+        { value: '90', label: '90 Hari' },
+        { value: '120', label: '120 Hari' }
+      ],
+      vps: [] // Akan diisi melalui fetch ke /vps-list
+    };
+
+    let activeDropdown = null;
+    document.querySelectorAll('.custom-dropdown').forEach((dropdown) => {
+      dropdown.addEventListener('click', () => {
+        const field = dropdown.getAttribute('data-field');
+        activeDropdown = dropdown;
+        openDropdownModal(field);
+      });
+    });
+
+    function openDropdownModal(field) {
+      const modal = document.getElementById('dropdown-modal');
+      const modalTitle = document.getElementById('dropdown-modal-title');
+      const optionsContainer = document.getElementById('dropdown-options');
+      optionsContainer.innerHTML = ''; // Bersihkan opsi sebelumnya
+
+      modalTitle.textContent = 'Pilih ' + field.charAt(0).toUpperCase() + field.slice(1);
+      let options = dropdownOptions[field] || [];
+      options.forEach((option) => {
+        const optionDiv = document.createElement('div');
+        optionDiv.classList.add('dropdown-option');
+        optionDiv.textContent = option.label;
+        optionDiv.setAttribute('data-value', option.value);
+        optionDiv.addEventListener('click', () => {
+          selectOption(field, option.value, option.label);
+        });
+        optionsContainer.appendChild(optionDiv);
+      });
+      modal.style.display = 'flex';
+    }
+
+    function selectOption(field, value, label) {
+      if (activeDropdown && activeDropdown.getAttribute('data-field') === field) {
+        activeDropdown.textContent = label;
+        activeDropdown.classList.add('selected');
+      }
+      const inputElement = document.getElementById('input-' + field);
+      if (inputElement) {
+        inputElement.value = value;
+      }
+      closeDropdownModal();
+    }
+
+    function closeDropdownModal() {
+      document.getElementById('dropdown-modal').style.display = 'none';
+    }
+
+    // Ambil data VPS dari backend melalui endpoint /vps-list
+    fetch('/vps-list')
+      .then(response => response.json())
+      .then(data => {
+        dropdownOptions.vps = data.map(item => ({
+          value: item.name,
+          label: item.name
+        }));
+      })
+      .catch(err => console.log('Error fetching VPS list:', err));
+  </script>
 </body>
 </html>
