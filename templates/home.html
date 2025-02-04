@@ -1,115 +1,86 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Status VPS</title>
-  <!-- Import Google Fonts: Poppins -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
-  <!-- Import Font Awesome untuk ikon -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Monitoring Server Compact</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    /* Global Styles */
-    * {
-      box-sizing: border-box;
-    }
     body {
+      background-color: #fff;
+      font-size: 0.9rem;
       font-family: 'Poppins', sans-serif;
+    }
+    /* Styling untuk judul */
+    .custom-heading {
       background: #fff;
-      margin: 0;
-      padding: 0px 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      color: #333;
+      box-shadow: 3px 3px 6px #d1d1d1, -3px -3px 6px #ffffff;
+      color: #000;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 1.1rem;
     }
-    h1 {
-      margin: 0 20px 30px 20px;
-    }
-    /* Loader */
-    .loader {
-      border: 8px solid #f3f3f3;
-      border-top: 8px solid #3498db;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-      display: none;
-      margin: 20px auto;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    /* Container untuk cards */
-    .container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-      width: 100%;
-      max-width: 1200px;
-    }
-    /* Styling Card */
+    /* Styling card dengan gradasi lembut dan efek emboss */
     .card {
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease;
-    }
-    .card:hover {
-      transform: translateY(-5px);
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(145deg, #ffffff, #f7f7f7);
+      box-shadow: 3px 3px 6px #d1d1d1, -3px -3px 6px #ffffff;
+      margin-bottom: 15px;
     }
     .card-header {
-      font-weight: 600;
-      font-size: 1.2em;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-    }
-    .status,
-    .latency,
-    .user-info {
-      margin-bottom: 8px;
-      font-size: 0.9em;
-      display: flex;
-      align-items: center;
-    }
-    .icon {
-      margin-right: 8px;
-    }
-    /* Status Colors */
-    .status.on {
-      color: #27ae60;
-    }
-    .status.off {
-      color: #e74c3c;
-    }
-    /* Error Message */
-    .error {
-      color: #e74c3c;
-      font-weight: 600;
-      text-align: center;
-      padding: 20px;
+      font-weight: bold;
+      font-size: 1rem;
       background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      color: #000;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+      padding: 8px 12px;
+    }
+    .card-body {
+      padding: 8px 12px;
+    }
+    .status-on {
+      color: #28a745;
+    }
+    .status-off {
+      color: #dc3545;
+    }
+    .spinner-container {
+      display: flex;
+      justify-content: center;
+      margin: 10px 0;
     }
   </style>
 </head>
 <body>
-  <h1>-STATUS-</h1>
-  <div class="loader" id="loader"></div>
-  <div class="container"></div>
+  <div class="container my-4">
+    <h5 class="custom-heading">STATUS SERVER</h5>
+    <!-- Loader dengan spinner Bootstrap kecil -->
+    <div id="loader" class="spinner-container">
+      <div class="spinner-border text-primary" role="status" style="width: 1.5rem; height: 1.5rem;">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+    <div class="row" id="statusContainer">
+      <!-- Card status server akan ditampilkan di sini -->
+    </div>
+  </div>
 
   <script>
     async function fetchStatus() {
-      const container = document.querySelector('.container');
+      const container = document.getElementById('statusContainer');
       const loader = document.getElementById('loader');
 
-      // Tampilkan loader hanya saat pertama kali memuat data
-      if (container.innerHTML === '') {
-        loader.style.display = 'block';
+      // Tampilkan loader jika kontainer masih kosong
+      if (container.innerHTML.trim() === '') {
+        loader.style.display = 'flex';
       }
 
       try {
@@ -117,52 +88,61 @@
         if (!response.ok) throw new Error('Gagal mengambil data');
         const data = await response.json();
         container.innerHTML = '';
+
         data.forEach(vps => {
+          // Buat kolom untuk setiap card
+          const col = document.createElement('div');
+          col.className = 'col-md-4 col-sm-6';
+
+          // Buat card
           const card = document.createElement('div');
           card.className = 'card';
 
-          // Ikon status berdasarkan status VPS
+          // Ikon-ikon
+          const serverIcon = '<i class="fa-solid fa-server"></i>';
           const statusIcon = vps.status === 'ON'
-            ? '<i class="fa-solid fa-check-circle icon"></i>'
-            : '<i class="fa-solid fa-times-circle icon"></i>';
-
-          // Ikon untuk nama VPS dan latency
-          const nameIcon = '<i class="fa-solid fa-server icon"></i>';
-          const latencyIcon = '<i class="fa-solid fa-wifi icon"></i>';
-
-          // Informasi pengguna
-          const userInfo = `<div class="user-info">
-                              <i class="fa-solid fa-users icon"></i>
-                              User: ${vps.current_users}/${vps.max_user}
-                            </div>`;
+            ? '<i class="fa-solid fa-check-circle"></i>'
+            : '<i class="fa-solid fa-times-circle"></i>';
+          const latencyIcon = '<i class="fa-solid fa-wifi"></i>';
 
           card.innerHTML = `
             <div class="card-header">
-              ${nameIcon} ${vps.name}
+              ${serverIcon} ${vps.name}
             </div>
-            <div class="status ${vps.status === 'ON' ? 'on' : 'off'}">
-              ${statusIcon} Status: ${vps.status}
+            <div class="card-body">
+              <p class="mb-1 ${vps.status === 'ON' ? 'status-on' : 'status-off'}">
+                ${statusIcon} ${vps.status}
+              </p>
+              <p class="mb-1">
+                ${latencyIcon} Latency: ${vps.latency || '-'}
+              </p>
+              <p class="mb-0">
+                <i class="fa-solid fa-users"></i> User: ${vps.current_users}/${vps.max_user}
+              </p>
             </div>
-            <div class="latency">
-              ${latencyIcon} Latency: ${vps.latency || '-'}
-            </div>
-            ${userInfo}
           `;
-          container.appendChild(card);
+          col.appendChild(card);
+          container.appendChild(col);
         });
       } catch (error) {
         console.error('Error fetching status:', error);
         container.innerHTML = `
-          <div class="error">
-            <i class="fa-solid fa-exclamation-circle icon"></i>
-            Error fetching data. Please try again later.
+          <div class="col-12">
+            <div class="alert alert-danger" role="alert">
+              <i class="fa-solid fa-exclamation-circle"></i> Error fetching data. Please try again later.
+            </div>
           </div>`;
       } finally {
         loader.style.display = 'none';
       }
     }
-    setInterval(fetchStatus, 50000);  // Perbarui status setiap 50 detik
-    window.onload = fetchStatus;        // Muat status saat halaman dimuat
+
+    // Perbarui status setiap 50 detik
+    setInterval(fetchStatus, 50000);
+    window.onload = fetchStatus;
   </script>
+
+  <!-- Bootstrap JS Bundle dengan Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
