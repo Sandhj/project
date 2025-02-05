@@ -24,17 +24,29 @@ def close_connection(exception):
     if db is not None:
         db.close()
 
-# Initialize database
 def init_db():
     with app.app_context():
         db = get_db()
         cursor = db.cursor()
+        # Tabel untuk menyimpan data pengguna
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT NOT NULL UNIQUE,
                 password TEXT NOT NULL,
                 balance INTEGER DEFAULT 0
+            )
+        ''')
+        # Tabel untuk menyimpan data session (pembuatan akun)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS user_sessions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT,
+                device TEXT,
+                protocol TEXT,
+                expired INTEGER,
+                output TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
         db.commit()
@@ -187,13 +199,13 @@ def create_account():
     if 'username' not in session:
         return redirect('/login')
 
-    # Ambil username dari sesi aktif
+    # Ambil username dari sesi aktif (operator yang melakukan transaksi)
     active_user = session['username']
 
     # Ambil data dari form
     protocol = request.form['protocol']
     device = request.form['device']
-    username = request.form['username']
+    username = request.form['username']  # username yang akan dibuat di VPS
     expired = int(request.form['expired'])
     vps_name = request.form['vps']  # Nama VPS yang dipilih dari dropdown
 
@@ -245,6 +257,17 @@ def create_account():
     # Menjalankan skrip shell di VPS yang dipilih
     output = run_script_on_vps(vps, protocol, username, expired)
 
+    # Simpan data session ke dalam database
+    try:
+        cursor.execute(
+            "INSERT INTO user_sessions (username, device, protocol, expired, output) VALUES (?, ?, ?, ?, ?)",
+            (username, device, protocol, expired, output)
+        )
+        db.commit()
+    except Exception as e:
+        print(f"Error saat menyimpan session: {e}")
+        # Anda bisa menambahkan flash atau logging error di sini jika diperlukan
+
     return render_template(
         'result.html',
         username=username,
@@ -255,7 +278,6 @@ def create_account():
         cost=total_cost,
         balance=new_balance
     )
-
 
 @app.route('/result')
 def result():
@@ -274,6 +296,23 @@ def result():
         device=device,
         output=output,
     )
+
+@app.route('/riwayat', methods=['GET'])
+def riwayat():
+    # Cek apakah pengguna sudah login
+    if 'username' not in session:
+        flash("Silahkan login terlebih dahulu", "error")
+        return redirect('/login')
+
+    # Ambil data user session dari database
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM user_sessions ORDER BY created_at DESC")
+    sessions_data = cursor.fetchall()
+
+    # Render template 'riwayat.html' dengan data sessions
+    return render_template("riwayat.html", sessions=sessions_data)
+
 
 #------------- add & delete server -----------
 
