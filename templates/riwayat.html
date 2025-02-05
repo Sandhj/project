@@ -52,9 +52,9 @@
       </div>
     </div>
 
-    <!-- Toast container -->
+    <!-- Toast container dengan autohide dinonaktifkan -->
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-      <div id="customToast" class="toast custom-toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div id="customToast" class="toast custom-toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
         <div class="toast-header bg-dark text-white">
           <strong class="me-auto">Output</strong>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
@@ -71,8 +71,8 @@
       document.addEventListener('DOMContentLoaded', function () {
         var toastEl = document.getElementById('customToast');
         var toastBody = document.getElementById('toastBody');
-        // Inisialisasi Toast dengan delay (5 detik)
-        var toast = new bootstrap.Toast(toastEl, { delay: 5000 });
+        // Inisialisasi Toast dengan autohide dinonaktifkan
+        var toast = new bootstrap.Toast(toastEl, { autohide: false });
 
         // Event listener untuk semua tombol "See Output"
         var buttons = document.querySelectorAll('.see-output-btn');
