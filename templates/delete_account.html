@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hapus XRAY Account</title>
+  <title>Delete User VPN</title>
   
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
@@ -51,13 +51,14 @@
         });
     }
 
+    // Perubahan di sini: mengarahkan ke route /delete_account, bukan root ("/")
     function selectProtocol(protocol) {
       currentProtocol = protocol;
-      window.location.href = "/?protocol=" + protocol + "&server=" + currentServer;
+      window.location.href = "/delete_account?protocol=" + protocol + "&server=" + currentServer;
     }
     function selectServer(server) {
       currentServer = server;
-      window.location.href = "/?protocol=" + currentProtocol + "&server=" + server;
+      window.location.href = "/delete_account?protocol=" + currentProtocol + "&server=" + server;
     }
   </script>
 
@@ -68,6 +69,7 @@
       color: #333;
       padding: 10px;
       text-align: center;
+      margin-top: 50px;
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -92,7 +94,7 @@
     th, td {
       border: none;
       padding: 15px;
-      font-size: 18px;
+      font-size: 11px;
     }
 
     th {
@@ -230,7 +232,7 @@
       padding: 12px;
       border-radius: 8px;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 11px;
       font-weight: 600;
       color: #333;
       border: 2px solid transparent;
@@ -264,7 +266,7 @@
   </style>
 </head>
 <body>
-  <h2>Daftar Pengguna XRAY</h2>
+  <h2>DELETE USER VPN</h2>
   
   <!-- Protocol Selector -->
   <div class="protocol-selector">
