@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hapus XRAY Account</title>
+  
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  
+  <script>
+    // Variabel global untuk menyimpan protokol dan server yang dipilih
+    var currentProtocol = "{{ selected_protocol }}";
+    var currentServer = "{{ selected_server }}";
+
+    function showToast(message) {
+      let toast = document.getElementById("toast");
+      toast.innerText = message;
+      toast.classList.add("show");
+      setTimeout(() => { toast.classList.remove("show"); }, 3000);
+    }
+
+    function showConfirmPopup(protocol, server, username) {
+      let popup = document.getElementById("confirm-popup");
+      let confirmText = document.getElementById("confirm-text");
+      confirmText.innerHTML = `Apakah Anda yakin ingin menghapus pengguna: <b>${username}</b> pada <b>${protocol.toUpperCase()}</b> di server <b>${server}</b>?`;
+      
+      // Simpan informasi untuk tombol konfirmasi
+      document.getElementById("confirm-yes").onclick = function() { deleteUser(protocol, server, username); };
+      
+      popup.style.display = "flex";
+    }
+
+    function hideConfirmPopup() {
+      document.getElementById("confirm-popup").style.display = "none";
+    }
+
+    function deleteUser(protocol, server, username) {
+      hideConfirmPopup();
+      document.getElementById("loading").style.display = "block";
+      
+      fetch(`/delete/${protocol}/${server}/${username}`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("loading").style.display = "none";
+          showToast(data.message);
+          setTimeout(() => { location.reload(); }, 1000);
+        });
+    }
+
+    function selectProtocol(protocol) {
+      currentProtocol = protocol;
+      window.location.href = "/?protocol=" + protocol + "&server=" + currentServer;
+    }
+    function selectServer(server) {
+      currentServer = server;
+      window.location.href = "/?protocol=" + currentProtocol + "&server=" + server;
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #cce5ff, #e6f7ff);
+      color: #333;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    h2, h3 {
+      font-weight: 600;
+      color: #0056b3;
+    }
+
+    table {
+      width: 100%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    th, td {
+      border: none;
+      padding: 15px;
+      font-size: 18px;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+      text-transform: uppercase;
+    }
+
+    td {
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    .delete-icon {
+      cursor: pointer;
+      color: red;
+      font-size: 20px;
+      float: right;
+      transition: transform 0.2s ease-in-out;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .delete-icon:hover {
+      transform: scale(1.2);
+      color: darkred;
+    }
+
+    /* Popup Konfirmasi */
+    #confirm-popup {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .confirm-box {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+      width: 300px;
+    }
+
+    .confirm-buttons {
+      margin-top: 15px;
+    }
+
+    .confirm-buttons button {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 5px;
+    }
+
+    .btn-yes {
+      background: #007bff;
+      color: white;
+    }
+
+    .btn-no {
+      background: #ddd;
+      color: black;
+    }
+
+    /* Notifikasi Toast */
+    #toast {
+      visibility: hidden;
+      min-width: 250px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      padding: 10px;
+      position: fixed;
+      left: 50%;
+      bottom: 30px;
+      transform: translateX(-50%);
+      border-radius: 5px;
+      z-index: 1;
+    }
+
+    #toast.show {
+      visibility: visible;
+      animation: fadeIn 0.5s, fadeOut 0.5s 2.5s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+
+    /* Loading Animasi */
+    #loading {
+      display: none;
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.5);
+      padding: 20px;
+      border-radius: 10px;
+      color: white;
+      font-size: 18px;
+      text-align: center;
+      z-index: 999;
+    }
+
+    .protocol-selector, .server-selector {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .protocol-options, .server-options {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .protocol-item, .server-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      border: 2px solid transparent;
+      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .protocol-item i, .server-item i {
+      font-size: 18px;
+      color: #007bff;
+    }
+
+    .protocol-item:hover, .server-item:hover {
+      background: #007bff;
+      color: white;
+    }
+
+    .protocol-item:hover i, .server-item:hover i {
+      color: white;
+    }
+
+    .protocol-item.active, .server-item.active {
+      background: #0056b3;
+      color: white;
+      border-color: #003d80;
+    }
+
+    .protocol-item.active i, .server-item.active i {
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h2>Daftar Pengguna XRAY</h2>
+  
+  <!-- Protocol Selector -->
+  <div class="protocol-selector">
+    <strong>Pilih Protokol:</strong>
+    <div class="protocol-options">
+      <div class="protocol-item {% if selected_protocol == 'vmess' %}active{% endif %}" onclick="selectProtocol('vmess')">
+        <i class="fa-solid fa-bolt"></i> VMESS
+      </div>
+      <div class="protocol-item {% if selected_protocol == 'vless' %}active{% endif %}" onclick="selectProtocol('vless')">
+        <i class="fa-solid fa-bolt"></i> VLESS
+      </div>
+      <div class="protocol-item {% if selected_protocol == 'trojan' %}active{% endif %}" onclick="selectProtocol('trojan')">
+        <i class="fa-solid fa-bolt"></i> TROJAN
+      </div>
+    </div>
+  </div>
+
+  <!-- Server Selector -->
+  <div class="server-selector">
+    <strong>Pilih Server:</strong>
+    <div class="server-options">
+      {% for srv in servers %}
+      <div class="server-item {% if selected_server == srv.name %}active{% endif %}" onclick="selectServer('{{ srv.name }}')">
+        <i class="fa-solid fa-server"></i> {{ srv.name }}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <h3>Total Pengguna: {{ users|length }}</h3>
+
+  <table>
+    <tr>
+      <th>Username</th>
+    </tr>
+    {% for user in users %}
+    <tr>
+      <td>
+        {{ user }}
+        <i class="fa-solid fa-trash delete-icon" onclick="showConfirmPopup('{{ selected_protocol }}', '{{ selected_server }}', '{{ user }}')"></i>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <!-- Popup Konfirmasi -->
+  <div id="confirm-popup">
+    <div class="confirm-box">
+      <p id="confirm-text"></p>
+      <div class="confirm-buttons">
+        <button class="btn-yes" id="confirm-yes">Ya</button>
+        <button class="btn-no" onclick="hideConfirmPopup()">Tidak</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+  <div id="loading">Menghapus pengguna...</div>
+</body>
+</html>
