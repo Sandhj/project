@@ -1,75 +1,102 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account Creation Result</title>
+    <title>Akun Berhasil Dibuat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        /* Gunakan font Lato */
-        @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
-
-        body {
-            font-family: 'Lato', sans-serif;
-            background-color: #f9f9f9;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #f7f7f7;
             display: flex;
-            justify-content: center;
-            align-items: top;
-            min-height: 100vh;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            height: 100vh;
+            color: #000;
+            padding-top: 20px;
+        }
+
+        .success-message {
+            background: #34c759;
+            color: white;
+            padding: 10px;
+            width: 90%;
+            max-width: 400px;
+            text-align: left;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-bottom: 15px;
         }
 
         .container {
-            max-width: 320px;
-            width: 100%;
-            background: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            padding: 20px 30px;
-            margin: 20px 0;
-            text-align: center;
-        }
-
-        h1 {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            color: #4CAF50;
-        }
-
-        .result {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 12px;
             text-align: left;
-            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
         }
+
 
         .result p {
             font-size: 16px;
-            margin: 8px 0;
+            margin: 5px 0;
         }
 
-        .result pre {
-            background: #f4f4f4;
-            padding: 15px;
-            border-radius: 5px;
-            font-size: 14px;
-            font-family: monospace;
+        .result strong {
+            font-weight: 600;
+            color: #000;
+        }
+
+        h2 {
+            font-size: 20px;
+            margin-top: 15px;
+            font-weight: 600;
+            border-bottom: 2px solid #000;
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        pre {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: left;
             overflow-x: auto;
-            white-space: pre-wrap; /* Membungkus teks panjang */
-            word-wrap: break-word; /* Memastikan kata panjang dipisah */
-            max-height: 300px; /* Jika output sangat panjang */
-            overflow-y: auto;
+            font-size: 14px;
+        }
+
+        code {
+            color: #000;
+            font-family: 'Courier New', monospace;
         }
     </style>
 </head>
 <body>
+
+    <div class="success-message">
+        Successfully Create Account
+    </div>
+
     <div class="container">
-        <h1>Successfully Created</h1>
         <div class="result">
             <p><strong>Username:</strong> {{ username }}</p>
             <p><strong>Expired:</strong> {{ expired }} days</p>
             <h2>Rincian Akun</h2>
+        
             <pre><code>{{ output }}</code></pre>
         </div>
     </div>
+
 </body>
 </html>
