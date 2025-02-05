@@ -703,7 +703,6 @@ def process_form():
         return jsonify({"error": "Harap isi semua data!"}), 400
 
 #------------------- Fungsi Delete Account -------------
-
 FILE_PATH_DELETE = "/usr/local/etc/xray/config/04_inbounds.json"
 
 TAG_MAPPING = {
@@ -751,7 +750,6 @@ def load_users(protocol, server_info):
                     username = username_parts[0]
                     users.add(username)
     return sorted(users)
-
 
 def delete_user(username, protocol, server_info):
     """Menghapus user tertentu dari file konfigurasi di server remote"""
@@ -818,7 +816,6 @@ def delete(protocol, server, username):
         return jsonify({"status": "success", "message": f"User '{username}' pada {protocol.upper()} di server {server} berhasil dihapus."})
     else:
         return jsonify({"status": "error", "message": f"Gagal menghapus user '{username}' pada {protocol.upper()} di server {server}."}), 500
-
 
 
 @app.route("/logout")
