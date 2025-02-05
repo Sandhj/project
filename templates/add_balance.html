@@ -5,43 +5,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Balance</title>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Poppins', sans-serif;
             background-color: #f4f4f4;
-            margin-top: 30px;
+            margin-top: 75px;
             padding: 0;
         }
         h1 {
             text-align: center;
             margin-top: 20px;
             color: #333;
-            font-size: 24px;
+            font-size: 28px;
         }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .toast {
+            display: flex;
+            align-items: center;
+            background-color: #333;
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            margin-bottom: 10px;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .toast.success { background-color: #28a745; }
+        .toast.error { background-color: #dc3545; }
+        .toast i {
+            margin-right: 10px;
+        }
+
+        /* Form Styling */
         form {
             width: 320px;
-            margin: 30px auto;
+            margin: 40px auto;
             background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         label {
             font-size: 14px;
-            font-weight: bold;
+            font-weight: 500;
             color: #555;
-            display: block;
             margin-bottom: 8px;
+            display: block;
         }
         input {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
+            padding: 12px;
+            margin-bottom: 20px;
             border: 1px solid #ccc;
-            border-radius: 4px;
+            border-radius: 8px;
             box-sizing: border-box;
         }
         button {
@@ -50,17 +82,14 @@
             background-color: #3498db;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
         }
         button:hover {
-            background-color: #45a049;
+            background-color: #2980b9;
         }
         a {
             display: block;
@@ -83,58 +112,27 @@
             margin-bottom: 10px;
         }
 
-      /* Flash message container */
-        ul {
-            padding: 0;
-            list-style-type: none;
-        }
-
-        li {
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 5px;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        /* Success message styling */
-        .success {
-            background-color: #4CAF50;
-            color: white;
-            border: 1px solid #388E3C;
-        }
-
-        /* Error message styling */
-        .error {
-            background-color: #f44336;
-            color: white;
-            border: 1px solid #d32f2f;
-        }
-
-        /* Hover effect for flash messages */
-        .success:hover, .error:hover {
-            opacity: 0.8;
-            cursor: pointer;
-        }
- 
-        /* Optional: Add transition effect */
-        li {
-            transition: opacity 0.3s ease;
-        }
-
     </style>
 </head>
 <body>
-    <h1>Add Balance</h1>
+
+    <h1><i class="fas fa-wallet"></i> Add Balance</h1>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <ul>
+            <ul style="display: none;">
                 {% for category, message in messages %}
                     <li class="{{ category }}">{{ message }}</li>
                 {% endfor %}
             </ul>
         {% endif %}
     {% endwith %}
+
+    <!-- Form to Add Balance -->
     <form method="POST">
         <div class="form-header">
             <p>Add funds to a user's account</p>
@@ -143,8 +141,38 @@
         <input type="text" name="username" id="username" placeholder="Enter username" required>
         <label for="balance">Balance to Add:</label>
         <input type="number" name="balance" id="balance" placeholder="Enter amount" required>
-        <button type="submit">Add Balance</button>
+        <button type="submit"><i class="fas fa-plus-circle"></i> Add Balance</button>
     </form>
-    <a href="/dashboard">Back to Dashboard</a>
+
+    <script>
+        // Fungsi untuk menampilkan toast
+        function showToast(message, type) {
+            const toastContainer = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            toast.classList.add("toast", "show", type);
+            toast.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
+            toastContainer.appendChild(toast);
+
+            // Hapus toast setelah 4 detik
+            setTimeout(() => {
+                toast.classList.remove("show");
+                setTimeout(() => {
+                    toast.remove();
+                }, 500);
+            }, 4000);
+        }
+
+        // Menampilkan pesan Flask sebagai Toast saat halaman dimuat
+        window.onload = function() {
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        showToast("{{ message }}", "{{ category }}");
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        };
+    </script>
+
 </body>
 </html>
