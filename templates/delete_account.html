@@ -59,28 +59,6 @@
       currentServer = server;
       window.location.href = "/?protocol=" + currentProtocol + "&server=" + server;
     }
-    
-    // Fungsi untuk toggle dropdown
-    function toggleDropdown(type) {
-      if (type === 'protocol') {
-        document.getElementById('protocol-dropdown-content').classList.toggle('show-dropdown');
-      } else if (type === 'server') {
-        document.getElementById('server-dropdown-content').classList.toggle('show-dropdown');
-      }
-    }
-
-    // Tutup dropdown saat klik di luar
-    window.addEventListener('click', function(event) {
-      if (!event.target.closest('.dropdown')) {
-        var dropdowns = document.getElementsByClassName("dropdown-content");
-        for (var i = 0; i < dropdowns.length; i++) {
-          var openDropdown = dropdowns[i];
-          if (openDropdown.classList.contains('show-dropdown')) {
-            openDropdown.classList.remove('show-dropdown');
-          }
-        }
-      }
-    });
   </script>
 
   <style>
@@ -88,8 +66,7 @@
       font-family: 'Poppins', sans-serif;
       background: #f7f7f7;
       color: #333;
-      margin-top: 35px;
-      padding: 20px;
+      padding: 10px;
       text-align: center;
       -webkit-tap-highlight-color: transparent;
     }
@@ -99,12 +76,12 @@
       color: #000;
     }
     h3 {
-      font-size: 14px;
+      font-size: 8px;
     }
 
     table {
       width: 100%;
-      margin: 10px auto;
+      margin: 20px auto;
       border-collapse: collapse;
       background: white;
       border-radius: 8px;
@@ -115,7 +92,7 @@
     th, td {
       border: none;
       padding: 15px;
-      font-size: 14px;
+      font-size: 18px;
     }
 
     th {
@@ -233,123 +210,87 @@
       z-index: 999;
     }
 
-    /* Custom Dropdown Styles */
-    .dropdown-container {
-      text-align: left;
+    .protocol-selector, .server-selector {
+      text-align: center;
+      margin: 5px 0;
     }
 
-    .dropdown-flex-container {
+    .protocol-options, .server-options {
       display: flex;
       justify-content: center;
-      align-items: flex-end;
-      gap: 20px;
-      margin: 20px 0;
+      gap: 15px;
+      margin-top: 10px;
     }
 
-    .dropdown {
-      position: relative;
-      display: inline-block;
-    }
-
-    .dropdown-btn {
-      background: white;
-      border: 2px solid #007bff;
-      padding: 10px 20px;
-      font-size: 10px;
-      font-family: 'Poppins', sans-serif;
-      cursor: pointer;
-      border-radius: 8px;
-      color: #007bff;
+    .protocol-item, .server-item {
       display: flex;
       align-items: center;
-      gap: 10px;
-      transition: background 0.3s, color 0.3s;
+      gap: 8px;
+      background: white;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      border: 2px solid transparent;
+      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
     }
 
-    .dropdown-btn:hover {
+    .protocol-item i, .server-item i {
+      font-size: 18px;
+      color: #007bff;
+    }
+
+    .protocol-item:hover, .server-item:hover {
       background: #007bff;
       color: white;
     }
 
-    .dropdown-btn i {
-      transition: transform 0.3s;
-    }
-
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      background: white;
-      min-width: 200px;
-      border: 2px solid #007bff;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      z-index: 1;
-      margin-top: 5px;
-    }
-
-    .dropdown-content .dropdown-item {
-      padding: 10px 15px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transition: background 0.3s, color 0.3s;
-      color: #007bff;
-    }
-
-    .dropdown-content .dropdown-item:hover {
-      background: #007bff;
+    .protocol-item:hover i, .server-item:hover i {
       color: white;
     }
 
-    .show-dropdown {
-      display: block;
+    .protocol-item.active, .server-item.active {
+      background: #0056b3;
+      color: white;
+      border-color: #003d80;
+    }
+
+    .protocol-item.active i, .server-item.active i {
+      color: white;
     }
   </style>
 </head>
 <body>
-  <h2>DELETE USERS</h2>
+  <h2>Daftar Pengguna XRAY</h2>
   
-  <!-- Dropdown Protokol dan Server (sejajar) -->
-  <div class="dropdown-flex-container">
-    <!-- Dropdown Protokol -->
-    <div class="dropdown-container">
-      <label><strong>Pilih Protokol:</strong></label>
-      <div class="dropdown" id="protocol-dropdown">
-        <button class="dropdown-btn" onclick="toggleDropdown('protocol')">
-          <span id="protocol-selected-text">{{ selected_protocol|upper }}</span>
-          <i class="fa-solid fa-chevron-down"></i>
-        </button>
-        <div class="dropdown-content" id="protocol-dropdown-content">
-          <div class="dropdown-item" onclick="selectProtocol('vmess'); toggleDropdown('protocol');">
-            <i class="fa-solid fa-bolt"></i> VMESS
-          </div>
-          <div class="dropdown-item" onclick="selectProtocol('vless'); toggleDropdown('protocol');">
-            <i class="fa-solid fa-bolt"></i> VLESS
-          </div>
-          <div class="dropdown-item" onclick="selectProtocol('trojan'); toggleDropdown('protocol');">
-            <i class="fa-solid fa-bolt"></i> TROJAN
-          </div>
-        </div>
+  <!-- Protocol Selector -->
+  <div class="protocol-selector">
+    <strong>Pilih Protokol:</strong>
+    <div class="protocol-options">
+      <div class="protocol-item {% if selected_protocol == 'vmess' %}active{% endif %}" onclick="selectProtocol('vmess')">
+        <i class="fa-solid fa-bolt"></i> VMESS
+      </div>
+      <div class="protocol-item {% if selected_protocol == 'vless' %}active{% endif %}" onclick="selectProtocol('vless')">
+        <i class="fa-solid fa-bolt"></i> VLESS
+      </div>
+      <div class="protocol-item {% if selected_protocol == 'trojan' %}active{% endif %}" onclick="selectProtocol('trojan')">
+        <i class="fa-solid fa-bolt"></i> TROJAN
       </div>
     </div>
+  </div>
 
-    <!-- Dropdown Server -->
-    <div class="dropdown-container">
-      <label><strong>Pilih Server:</strong></label>
-      <div class="dropdown" id="server-dropdown">
-        <button class="dropdown-btn" onclick="toggleDropdown('server')">
-          <span id="server-selected-text">{{ selected_server }}</span>
-          <i class="fa-solid fa-chevron-down"></i>
-        </button>
-        <div class="dropdown-content" id="server-dropdown-content">
-          {% for srv in servers %}
-          <div class="dropdown-item" onclick="selectServer('{{ srv.name }}'); toggleDropdown('server');">
-            <i class="fa-solid fa-server"></i> {{ srv.name }}
-          </div>
-          {% endfor %}
-        </div>
+  <!-- Server Selector -->
+  <div class="server-selector">
+    <strong>Pilih Server:</strong>
+    <div class="server-options">
+      {% for srv in servers %}
+      <div class="server-item {% if selected_server == srv.name %}active{% endif %}" onclick="selectServer('{{ srv.name }}')">
+        <i class="fa-solid fa-server"></i> {{ srv.name }}
       </div>
+      {% endfor %}
     </div>
   </div>
 
