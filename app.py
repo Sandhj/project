@@ -702,6 +702,124 @@ def process_form():
     else:
         return jsonify({"error": "Harap isi semua data!"}), 400
 
+#------------------- Fungsi Delete Account -------------
+
+FILE_PATH_DELETE = "/usr/local/etc/xray/config/04_inbounds.json"
+
+TAG_MAPPING = {
+    "vmess": "###",
+    "vless": "##!",
+    "trojan": "#&!"
+}
+
+# Muat daftar server dari file server.json
+SERVER_JSON_PATH = "server.json"
+if os.path.exists(SERVER_JSON_PATH):
+    with open(SERVER_JSON_PATH, "r") as file:
+        SERVER_LIST = json.load(file)
+else:
+    SERVER_LIST = []
+
+def load_users(protocol, server_info):
+    """Mengambil daftar pengguna dari file konfigurasi di server remote"""
+    users = set()
+    tag = TAG_MAPPING.get(protocol.lower(), "###")  # Default ke VMESS jika input tidak valid
+    try:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(
+            server_info["hostname"],
+            username=server_info["username"],
+            password=server_info["password"]
+        )
+        sftp = ssh.open_sftp()
+        remote_file = sftp.open(FILE_PATH_DELETE, "r")
+        lines = remote_file.readlines()
+        remote_file.close()
+        sftp.close()
+        ssh.close()
+    except Exception as e:
+        print(f"Error connecting to server {server_info['name']}: {e}")
+        return []
+    
+    for line in lines:
+        if tag in line:
+            parts = line.strip().split(tag)
+            if len(parts) >= 2:
+                username_parts = parts[1].strip().split()
+                if username_parts:  # Pastikan ada elemen sebelum mengakses indeks 0
+                    username = username_parts[0]
+                    users.add(username)
+    return sorted(users)
+
+
+def delete_user(username, protocol, server_info):
+    """Menghapus user tertentu dari file konfigurasi di server remote"""
+    tag = TAG_MAPPING.get(protocol.lower(), "###")
+    try:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(
+            server_info["hostname"],
+            username=server_info["username"],
+            password=server_info["password"]
+        )
+        sftp = ssh.open_sftp()
+        # Baca file konfigurasi
+        remote_file = sftp.open(FILE_PATH_DELETE, "r")
+        lines = remote_file.readlines()
+        remote_file.close()
+        # Proses hapus baris dengan pola tertentu
+        new_lines = []
+        skip = False
+        for line in lines:
+            if f"{tag} {username}" in line:
+                skip = True  # Abaikan baris ini dan baris berikutnya
+            elif skip:
+                skip = False
+            else:
+                new_lines.append(line)
+        # Tulis kembali file konfigurasi yang telah diperbarui
+        remote_file = sftp.open(FILE_PATH_DELETE, "w")
+        remote_file.writelines(new_lines)
+        remote_file.close()
+        sftp.close()
+        ssh.close()
+    except Exception as e:
+        print(f"Error deleting user {username} on server {server_info['name']}: {e}")
+        return False
+    return True
+
+@app.route("/delete_account", methods=["GET"])
+def delete_account():
+    protocol = request.args.get("protocol", "vmess")  # Default ke VMESS
+    selected_server = request.args.get("server", None)
+    if not selected_server and SERVER_LIST:
+        selected_server = SERVER_LIST[0]["name"]
+    # Cari server berdasarkan nama
+    server_info = next((s for s in SERVER_LIST if s["name"] == selected_server), None)
+    if not server_info:
+        return "Server tidak ditemukan", 404
+    users = load_users(protocol, server_info)
+    return render_template(
+        "delete_account.html",
+        users=users,
+        selected_protocol=protocol,
+        servers=SERVER_LIST,
+        selected_server=selected_server
+    )
+
+@app.route("/delete/<protocol>/<server>/<username>", methods=["POST"])
+def delete(protocol, server, username):
+    server_info = next((s for s in SERVER_LIST if s["name"] == server), None)
+    if not server_info:
+        return jsonify({"status": "error", "message": f"Server {server} tidak ditemukan."}), 404
+    if delete_user(username, protocol, server_info):
+        return jsonify({"status": "success", "message": f"User '{username}' pada {protocol.upper()} di server {server} berhasil dihapus."})
+    else:
+        return jsonify({"status": "error", "message": f"Gagal menghapus user '{username}' pada {protocol.upper()} di server {server}."}), 500
+
+
 
 @app.route("/logout")
 def logout():
