@@ -1,51 +1,82 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Data Pengguna</title>
-  <!-- Menggunakan Bootstrap 4 untuk tampilan profesional -->
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <!-- Menggunakan Bootstrap 4 -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
   <style>
     body {
-      background: #f8f9fa;
+      font-family: 'Poppins', sans-serif;
+      background: #eef2f7;
+      margin-top: 80px;
     }
+    
+    /* Gaya untuk card */
+    .card {
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    /* Gaya untuk tabel */
     .table thead th {
       background-color: #343a40;
       color: #fff;
+      border: none;
     }
+    .table tbody tr:hover {
+      background-color: #f1f1f1;
+      transition: background-color 0.3s ease;
+    }
+    /* Gaya untuk pesan data kosong */
+    .no-data {
+      font-style: italic;
+      color: #888;
+    }
+    /* Container yang lebih rapi */
     .container {
-      margin-top: 50px;
+      max-width: 900px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1 class="mb-4 text-center">Daftar Pengguna</h1>
-    <div class="table-responsive">
-      <table class="table table-bordered table-hover">
-        <thead>
-          <tr>
-            <th>Username</th>
-            <th>Balance</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% if users|length > 0 %}
-            {% for user in users %}
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover mb-0">
+            <thead>
               <tr>
-                <td>{{ user['username'] }}</td>
-                <td>{{ user['balance'] }}</td>
+                <th>Username</th>
+                <th>Balance</th>
               </tr>
-            {% endfor %}
-          {% else %}
-            <tr>
-              <td colspan="2" class="text-center">Tidak ada data pengguna.</td>
-            </tr>
-          {% endif %}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+              {% if users|length > 0 %}
+                {% for user in users %}
+                  <tr>
+                    <td>{{ user['username'] }}</td>
+                    <td>{{ user['balance'] }}</td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="2" class="text-center no-data">Tidak ada data pengguna.</td>
+                </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
+  
+  <!-- Optional JavaScript: jQuery, Popper.js, dan Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 </body>
 </html>
