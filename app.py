@@ -818,6 +818,50 @@ def delete(protocol, server, username):
         return jsonify({"status": "error", "message": f"Gagal menghapus user '{username}' pada {protocol.upper()} di server {server}."}), 500
 
 
+#------------------ Get Data User di database dan kurangi saldo --------
+
+@app.route('/users', methods=['GET'])
+def users():
+    db = get_db()
+    cursor = db.execute("SELECT username, balance FROM users")
+    users = cursor.fetchall()
+    return render_template('users.html', users=users)
+
+@app.route('/kurangi_saldo', methods=['GET', 'POST'])
+def kurangi_saldo():
+    message = None
+    if request.method == 'POST':
+        username = request.form.get('username')
+        amount_str = request.form.get('amount')
+
+        # Validasi input jumlah
+        try:
+            amount = int(amount_str)
+            if amount <= 0:
+                message = "Jumlah harus lebih dari nol."
+        except (ValueError, TypeError):
+            message = "Jumlah tidak valid. Masukkan angka yang benar."
+
+        if not message:
+            db = get_db()
+            # Ambil saldo pengguna berdasarkan username
+            cursor = db.execute("SELECT balance FROM users WHERE username = ?", (username,))
+            user = cursor.fetchone()
+            if user:
+                current_balance = user['balance']
+                if current_balance < amount:
+                    message = "Saldo tidak cukup untuk dikurangi."
+                else:
+                    new_balance = current_balance - amount
+                    db.execute("UPDATE users SET balance = ? WHERE username = ?", (new_balance, username))
+                    db.commit()
+                    message = f"Saldo pengguna {username} berhasil dikurangi sebanyak {amount}."
+            else:
+                message = "Pengguna tidak ditemukan."
+
+    return render_template('kurangi_saldo.html', message=message)
+    
+
 @app.route("/logout")
 def logout():
     session.pop("username", None)
