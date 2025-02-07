@@ -72,7 +72,7 @@ systemctl enable app${member}.service
 systemctl start app${member}.service
 
 
-cat <<EOL > /root/project/backup${member}.py
+cat <<EOL > /root/${member}/backup.py
 import os
 import shutil
 import zipfile
@@ -130,7 +130,7 @@ EOL
 
 # Variabel
 PROJECT_DIR="/root/${member}"
-BACKUP_SCRIPT="$PROJECT_DIR/backup${member}.py"
+BACKUP_SCRIPT="$PROJECT_DIR/backup.py"
 SERVICE_FILE="/etc/systemd/system/backup${member}.service"
 TIMER_FILE="/etc/systemd/system/backup${member}.timer"
 
@@ -182,7 +182,7 @@ sudo systemctl start backup${member}.timer
 echo "Setup selesai. Backup akan berjalan setiap 3 jam."
 
 # Restore
-cat <<EOL > /root/project/restore${member}.py
+cat <<EOL > /root/${member}/restore.py
 import os
 import zipfile
 import requests
