@@ -3,6 +3,7 @@
 read -p "member :" member
 
 mkdir -p /root/project/templates
+mkdir -p /root/project/backup
 
 cd
 cd /root/project/
@@ -13,8 +14,23 @@ https://raw.githubusercontent.com/Sandhj/project/main/server.json
 cd 
 cd /root/project/templates/
 
-wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/
-
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/add_balance.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/add_list_xl.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/add_server.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/create.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/dash_admin.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/dash_guest.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/delete_account.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/delete_server.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/deposit.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/home.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/kurangi_saldo.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/list_xl.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/login.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/register.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/result.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/riwayat.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/users.html
 cd ${member}
 python3 -m venv web
 source web/bin/activate
