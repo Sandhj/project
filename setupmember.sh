@@ -4,8 +4,8 @@ read -p "member :" member
 read -p "Token Tele :" tele
 read -p "Id Tele :" idtele
 
-mkdir -p /root/project/templates
-mkdir -p /root/project/backup
+mkdir -p /root/${member}/templates
+mkdir -p /root/${member}/backup
 
 cd
 cd /root/${member}/
