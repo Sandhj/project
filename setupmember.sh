@@ -1,6 +1,8 @@
 #!/bin/bash
 
 read -p "member :" member
+read -p "Token Tele :" tele
+read -p "Id Tele :" idtele
 
 mkdir -p /root/project/templates
 mkdir -p /root/project/backup
@@ -81,8 +83,8 @@ project_dir = "/root/${member}/"
 backup_dir = os.path.join(project_dir, "backup")
 files_to_backup = ["database.db", "list_xl.json", "server.json"]
 zip_filename = "backup.zip"
-telegram_token = "7360190308:AAH79nXyUiU4TRscBtYRLg14WVNfi1q1T1M"
-chat_id = "576495165"
+telegram_token = "${tele}"
+chat_id = "${idtele}"
 
 # Membuat folder backup jika belum ada
 if not os.path.exists(backup_dir):
@@ -245,4 +247,4 @@ else:
 
 EOL
 cd
-rm -r setup.sh
+rm -r setupmember.sh
