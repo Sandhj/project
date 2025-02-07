@@ -45,7 +45,7 @@ pip install paramiko
 deactivate
 
 cd
-cat <<EOL > /etc/systemd/system/${member}.service
+cat <<EOL > /etc/systemd/system/app${member}.service
 [Unit]
 Description=Run project script
 After=network.target
@@ -66,13 +66,13 @@ EOL
 
 # Reload systemd dan aktifkan service
 systemctl daemon-reload
-systemctl enable ${member}.service
+systemctl enable app${member}.service
 
 # Menjalankan service
-systemctl start ${member}.service
+systemctl start app${member}.service
 
 
-cat <<EOL > /root/${member}/backup.py
+cat <<EOL > /root/project/backup${member}.py
 import os
 import shutil
 import zipfile
@@ -130,9 +130,9 @@ EOL
 
 # Variabel
 PROJECT_DIR="/root/${member}"
-BACKUP_SCRIPT="$PROJECT_DIR/backup.py"
-SERVICE_FILE="/etc/systemd/system/${member}.service"
-TIMER_FILE="/etc/systemd/system/${member}.timer"
+BACKUP_SCRIPT="$PROJECT_DIR/backup${member}.py"
+SERVICE_FILE="/etc/systemd/system/backup${member}.service"
+TIMER_FILE="/etc/systemd/system/backup${member}.timer"
 
 # Pastikan script backup.py ada
 if [ ! -f "$BACKUP_SCRIPT" ]; then
@@ -176,13 +176,13 @@ EOF
 sudo systemctl daemon-reload
 
 # Mengaktifkan dan memulai timer
-sudo systemctl enable ${member}.timer
-sudo systemctl start ${member}.timer
+sudo systemctl enable backup${member}.timer
+sudo systemctl start backup${member}.timer
 
 echo "Setup selesai. Backup akan berjalan setiap 3 jam."
 
 # Restore
-cat <<EOL > /root/${member}/restore.py
+cat <<EOL > /root/project/restore${member}.py
 import os
 import zipfile
 import requests
@@ -190,8 +190,8 @@ import requests
 # Konfigurasi
 project_dir = "/root/${member}/"
 backup_file = os.path.join(project_dir, "backup.zip")
-telegram_token = "7360190308:AAH79nXyUiU4TRscBtYRLg14WVNfi1q1T1M"
-chat_id = "576495165"
+telegram_token = "${tele}"
+chat_id = "${idtele}"
 
 # Fungsi untuk mendownload file dari bot Telegram
 def download_backup():
