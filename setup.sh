@@ -13,7 +13,7 @@ mkdir -p /root/project/templates
 mkdir -p /root/project/backup
 
 cd
-cd /root/${member}/
+cd /root/project/
 wget -q https://raw.githubusercontent.com/Sandhj/project/main/app.py
 wget -q https://raw.githubusercontent.com/Sandhj/project/main/server.json
 
