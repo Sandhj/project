@@ -2,10 +2,18 @@
 
 read -p "member :" member
 
-cd
-git clone https://github.com/Sandhj/project.git
-mv /root/project/* /root/${member}/
+mkdir -p /root/project/templates
 
+cd
+cd /root/project/
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/app.py
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/run.sh
+https://raw.githubusercontent.com/Sandhj/project/main/server.json
+
+cd 
+cd /root/project/templates/
+
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/
 
 cd ${member}
 python3 -m venv web
