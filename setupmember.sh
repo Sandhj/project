@@ -6,13 +6,13 @@ mkdir -p /root/project/templates
 mkdir -p /root/project/backup
 
 cd
-cd /root/project/
+cd /root/${member}/
 wget -q https://raw.githubusercontent.com/Sandhj/project/main/app.py
 wget -q https://raw.githubusercontent.com/Sandhj/project/main/run.sh
 https://raw.githubusercontent.com/Sandhj/project/main/server.json
 
 cd 
-cd /root/project/templates/
+cd /root/${member}/templates/
 
 wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/add_balance.html
 wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/add_list_xl.html
@@ -31,7 +31,9 @@ wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/register
 wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/result.html
 wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/riwayat.html
 wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/users.html
-cd ${member}
+
+cd
+cd /root/${member}
 python3 -m venv web
 source web/bin/activate
 
