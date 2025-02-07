@@ -10,8 +10,13 @@ mkdir -p /root/${member}/backup
 cd
 cd /root/${member}/
 wget -q https://raw.githubusercontent.com/Sandhj/project/main/app.py
-wget -q https://raw.githubusercontent.com/Sandhj/project/main/run.sh
 wget -q https://raw.githubusercontent.com/Sandhj/project/main/server.json
+
+cat <<EOL > /root/${member}/run.sh
+#!/bin/bash
+source /root/${member}/web/bin/activate
+python /root/${member}/app.py
+EOL
 
 cd 
 cd /root/${member}/templates/
