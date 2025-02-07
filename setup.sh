@@ -1,12 +1,51 @@
 #!/bin/bash
 
+masukan Bot Tele :
+read -p "Token Tele :" tele
+read -p "Id Tele :" idtele
+
 cd
 apt update 
 sudo apt install git
 apt install python3.11-venv
 
-git clone https://github.com/Sandhj/project.git
-cd project
+mkdir -p /root/project/templates
+mkdir -p /root/project/backup
+
+cd
+cd /root/${member}/
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/app.py
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/server.json
+
+cat <<EOL > /root/project/run.sh
+#!/bin/bash
+source /root/project/web/bin/activate
+python /root/project/app.py
+EOL
+
+cd 
+cd /root/project/templates/
+
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/add_balance.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/add_list_xl.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/add_server.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/create.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/dash_admin.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/dash_guest.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/delete_account.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/delete_server.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/deposit.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/home.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/kurangi_saldo.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/list_xl.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/login.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/register.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/result.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/riwayat.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/users.html
+
+cd
+cd /root/project
 python3 -m venv web
 source web/bin/activate
 
@@ -14,6 +53,7 @@ pip install flask
 pip install requests
 pip install paramiko
 deactivate
+
 
 cd
 cat <<EOL > /etc/systemd/system/app.service
@@ -54,8 +94,8 @@ project_dir = "/root/project/"
 backup_dir = os.path.join(project_dir, "backup")
 files_to_backup = ["database.db", "list_xl.json", "server.json"]
 zip_filename = "backup.zip"
-telegram_token = "7360190308:AAH79nXyUiU4TRscBtYRLg14WVNfi1q1T1M"
-chat_id = "576495165"
+telegram_token = "${tele}"
+chat_id = "${idtele}"
 
 # Membuat folder backup jika belum ada
 if not os.path.exists(backup_dir):
