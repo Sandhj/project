@@ -11,7 +11,7 @@ cd
 cd /root/${member}/
 wget -q https://raw.githubusercontent.com/Sandhj/project/main/app.py
 wget -q https://raw.githubusercontent.com/Sandhj/project/main/run.sh
-https://raw.githubusercontent.com/Sandhj/project/main/server.json
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/server.json
 
 cd 
 cd /root/${member}/templates/
