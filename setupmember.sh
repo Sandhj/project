@@ -1,12 +1,13 @@
 #!/bin/bash
 
-cd
-apt update 
-sudo apt install git
-apt install python3.11-venv
+read -p "member :" member
 
+cd
 git clone https://github.com/Sandhj/project.git
-cd project
+mv /root/project/* /root/${member}/
+
+
+cd ${member}
 python3 -m venv web
 source web/bin/activate
 
@@ -16,14 +17,14 @@ pip install paramiko
 deactivate
 
 cd
-cat <<EOL > /etc/systemd/system/app.service
+cat <<EOL > /etc/systemd/system/${member}.service
 [Unit]
 Description=Run project script
 After=network.target
 
 [Service]
-ExecStart=/bin/bash /root/project/run.sh
-WorkingDirectory=/root/project
+ExecStart=/bin/bash /root/${member}/run.sh
+WorkingDirectory=/root/${member}
 User=root
 Group=root
 Restart=always
@@ -37,20 +38,20 @@ EOL
 
 # Reload systemd dan aktifkan service
 systemctl daemon-reload
-systemctl enable app.service
+systemctl enable ${member}.service
 
 # Menjalankan service
-systemctl start app.service
+systemctl start ${member}.service
 
 
-cat <<EOL > /root/project/backup.py
+cat <<EOL > /root/${member}/backup.py
 import os
 import shutil
 import zipfile
 import requests
 
 # Konfigurasi
-project_dir = "/root/project/"
+project_dir = "/root/${member}/"
 backup_dir = os.path.join(project_dir, "backup")
 files_to_backup = ["database.db", "list_xl.json", "server.json"]
 zip_filename = "backup.zip"
@@ -100,10 +101,10 @@ EOL
 #pasang service backup
 
 # Variabel
-PROJECT_DIR="/root/project"
+PROJECT_DIR="/root/${member}"
 BACKUP_SCRIPT="$PROJECT_DIR/backup.py"
-SERVICE_FILE="/etc/systemd/system/backup.service"
-TIMER_FILE="/etc/systemd/system/backup.timer"
+SERVICE_FILE="/etc/systemd/system/${member}.service"
+TIMER_FILE="/etc/systemd/system/${member}.timer"
 
 # Pastikan script backup.py ada
 if [ ! -f "$BACKUP_SCRIPT" ]; then
@@ -147,19 +148,19 @@ EOF
 sudo systemctl daemon-reload
 
 # Mengaktifkan dan memulai timer
-sudo systemctl enable backup.timer
-sudo systemctl start backup.timer
+sudo systemctl enable ${member}.timer
+sudo systemctl start ${member}.timer
 
 echo "Setup selesai. Backup akan berjalan setiap 3 jam."
 
 # Restore
-cat <<EOL > /root/project/restore.py
+cat <<EOL > /root/${member}/restore.py
 import os
 import zipfile
 import requests
 
 # Konfigurasi
-project_dir = "/root/project/"
+project_dir = "/root/${member}/"
 backup_file = os.path.join(project_dir, "backup.zip")
 telegram_token = "7360190308:AAH79nXyUiU4TRscBtYRLg14WVNfi1q1T1M"
 chat_id = "576495165"
