@@ -4,6 +4,7 @@ read -p "member :" member
 read -p "Token Tele :" tele
 read -p "Id Tele :" idtele
 read -p "port :" port
+read -p "domain :" domain
 
 mkdir -p /root/${member}/templates
 mkdir -p /root/${member}/backup
@@ -1127,7 +1128,35 @@ if download_backup():
     restore_backup()
 else:
     print("Proses restore gagal.")
+EOL
+
+#Pasang Domain Dan SSL
+
+cd /etc/nginx/sites-available/
+cat <<EOL > /etc/nginx/sites-available/${domain}
+server {
+    listen 80;
+    server_name ${domain};
+
+    location / {
+        proxy_pass ${domain}:${port};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
 
 EOL
+sudo ln -s /etc/nginx/sites-available/${domain} /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
+
+#pasang SSL
+sudo apt install certbot python3-certbot-nginx -y
+sudo certbot --nginx -d ${domain}
+
+
+
 cd
 rm -r setupmember.sh
