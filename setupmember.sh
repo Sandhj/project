@@ -954,7 +954,6 @@ systemctl enable app${member}.service
 
 # Menjalankan service
 systemctl start app${member}.service
-systemctl status app${member}.service
 
 cat <<EOL > /root/${member}/backup${member}.py
 import os
