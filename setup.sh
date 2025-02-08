@@ -1,6 +1,6 @@
 #!/bin/bash
 
-masukan Bot Tele :
+echo -e "masukan Bot Tele :"
 read -p "Token Tele :" tele
 read -p "Id Tele :" idtele
 
