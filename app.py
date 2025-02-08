@@ -41,6 +41,7 @@ def init_db():
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS user_sessions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                operator TEXT,
                 username TEXT,
                 device TEXT,
                 protocol TEXT,
@@ -260,10 +261,11 @@ def create_account():
     # Simpan data session ke dalam database
     try:
         cursor.execute(
-            "INSERT INTO user_sessions (username, device, protocol, expired, output) VALUES (?, ?, ?, ?, ?)",
-            (username, device, protocol, expired, output)
+            "INSERT INTO user_sessions (operator, username, device, protocol, expired, output) VALUES (?, ?, ?, ?, ?, ?)",
+            (active_user, username, device, protocol, expired, output)
         )
         db.commit()
+
     except Exception as e:
         print(f"Error saat menyimpan session: {e}")
         # Anda bisa menambahkan flash atau logging error di sini jika diperlukan
@@ -303,17 +305,17 @@ def riwayat():
     if 'username' not in session:
         flash("Silahkan login terlebih dahulu", "error")
         return redirect('/login')
-
-    # Ambil data user session dari database
+    
+    active_user = session['username']
     db = get_db()
     cursor = db.cursor()
-    cursor.execute("SELECT * FROM user_sessions ORDER BY created_at DESC")
+    # Mengambil data session berdasarkan operator yang login
+    cursor.execute(
+        "SELECT * FROM user_sessions WHERE operator = ? ORDER BY created_at DESC", 
+        (active_user,)
+    )
     sessions_data = cursor.fetchall()
-
-    # Render template 'riwayat.html' dengan data sessions
-    return render_template("riwayat.html", sessions=sessions_data)
-
-
+    return render_template('riwayat.html', sessions=sessions_data)
 #------------- add & delete server -----------
 
 # Lokasi file server.json
