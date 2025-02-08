@@ -495,6 +495,9 @@ def delete_package(package_name):
 # Route untuk form tambah saldo
 @app.route("/add_balance", methods=["GET", "POST"])
 def add_balance():
+    db = get_db()
+    cursor = db.cursor()
+
     if request.method == "POST":
         username = request.form.get("username")
         balance_to_add = request.form.get("balance")
@@ -512,8 +515,6 @@ def add_balance():
             flash("Jumlah saldo harus berupa angka.", "error")
             return redirect("/add_balance")
 
-        db = get_db()
-        cursor = db.cursor()
         cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
         user = cursor.fetchone()
 
@@ -527,7 +528,14 @@ def add_balance():
 
         return redirect("/add_balance")
 
-    return render_template("add_balance.html")
+    # Untuk method GET, query semua username dari tabel users
+    cursor.execute("SELECT username FROM users")
+    # Jika cursor.fetchall() mengembalikan list of tuples, Anda bisa melakukan:
+    users = [dict(row) for row in cursor.fetchall()]
+    # Atau jika sudah dikonfigurasi agar mengembalikan dict, cukup:
+    # users = cursor.fetchall()
+
+    return render_template("add_balance.html", users=users)
 
 #------------- Home Template -----------
 #Fungsi untuk memeriksa status VPS (ping)
