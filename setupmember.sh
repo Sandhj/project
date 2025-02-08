@@ -75,9 +75,9 @@ systemctl enable app${member}.service
 
 # Menjalankan service
 systemctl start app${member}.service
+systemctl status app${member}.service
 
-
-cat <<EOL > /root/${member}/backup.py
+cat <<EOL > /root/${member}/backup${member}.py
 import os
 import shutil
 import zipfile
@@ -135,7 +135,7 @@ EOL
 
 # Variabel
 PROJECT_DIR="/root/${member}"
-BACKUP_SCRIPT="$PROJECT_DIR/backup.py"
+BACKUP_SCRIPT="$PROJECT_DIR/backup${member}.py"
 SERVICE_FILE="/etc/systemd/system/backup${member}.service"
 TIMER_FILE="/etc/systemd/system/backup${member}.timer"
 
