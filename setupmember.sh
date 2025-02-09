@@ -1177,5 +1177,9 @@ else
     echo "Terdapat kesalahan dalam konfigurasi Nginx. Silahkan periksa kembali file $NGINX_CONF."
 fi
 
+#pasang SSL
+sudo apt install certbot python3-certbot-nginx -y
+sudo certbot --nginx -d $DOMAIN
+
 cd
 rm -r setupmember.sh
