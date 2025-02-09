@@ -3,8 +3,9 @@
 read -p "member :" member
 read -p "Token Tele :" tele
 read -p "Id Tele :" idtele
-read -p "port :" port
-read -p "domain :" domain
+read -p "Masukkan custom domain : " DOMAIN
+read -p "Masukkan IP server Flask : " FLASK_IP
+read -p "Masukkan port Flask (contoh: 5011): " PORT
 
 mkdir -p /root/${member}/templates
 mkdir -p /root/${member}/backup
@@ -1132,31 +1133,49 @@ EOL
 
 #Pasang Domain Dan SSL
 
-cd /etc/nginx/sites-available/
-cat <<EOL > /etc/nginx/sites-available/${domain}
+# Pastikan script dijalankan dengan akses root
+if [ "$(id -u)" -ne 0 ]; then
+    echo "Script ini harus dijalankan dengan akses root."
+    exit 1
+fi
+
+
+# Lokasi file konfigurasi Nginx
+NGINX_CONF="/etc/nginx/sites-available/$DOMAIN"
+
+# Membuat file konfigurasi Nginx
+cat > "$NGINX_CONF" <<EOF
 server {
     listen 80;
-    server_name ${domain};
+    server_name $DOMAIN;
 
     location / {
-        proxy_pass ${domain}:${port};
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://$FLASK_IP:$PORT;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
     }
 }
+EOF
 
-EOL
-sudo ln -s /etc/nginx/sites-available/${domain} /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl restart nginx
+echo "File konfigurasi telah dibuat: $NGINX_CONF"
 
-#pasang SSL
-sudo apt install certbot python3-certbot-nginx -y
-sudo certbot --nginx -d ${domain}
+# Membuat symbolic link ke sites-enabled jika belum ada
+if [ ! -L "/etc/nginx/sites-enabled/$DOMAIN" ]; then
+    ln -s "$NGINX_CONF" /etc/nginx/sites-enabled/
+    echo "Symbolic link dibuat: /etc/nginx/sites-enabled/$DOMAIN"
+fi
 
-
+# Uji konfigurasi Nginx
+nginx -t
+if [ $? -eq 0 ]; then
+    # Reload Nginx
+    systemctl reload nginx
+    echo "Nginx berhasil di-reload dan konfigurasi telah aktif."
+else
+    echo "Terdapat kesalahan dalam konfigurasi Nginx. Silahkan periksa kembali file $NGINX_CONF."
+fi
 
 cd
 rm -r setupmember.sh
