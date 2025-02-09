@@ -1,6 +1,7 @@
 #!/bin/bash
 
-read -p "member :" member
+read -p "Username Admin?:" admin
+read -p "nama folder member :" member
 read -p "Token Tele :" tele
 read -p "Id Tele :" idtele
 read -p "Masukkan custom domain : " DOMAIN
@@ -57,6 +58,7 @@ def init_db():
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS user_sessions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                operator TEXT,
                 username TEXT,
                 device TEXT,
                 protocol TEXT,
@@ -70,7 +72,7 @@ def init_db():
 @app.route("/")
 def login_temp():
     if "username" in session:
-        if session["username"] == "mastersandi":
+        if session["username"] == "${admin}":
             return redirect("/admin")
         else:
             return redirect("/guest")
@@ -85,7 +87,7 @@ def login():
         user = db.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password)).fetchone()
         if user:
             session["username"] = username
-            if username == "mastersandi":
+            if username == "${admin}":
                 return redirect("/admin")
             return redirect("/guest")
         else:
@@ -111,7 +113,7 @@ def register():
 
 @app.route("/guest")
 def guest_dashboard():
-    if "username" not in session or session["username"] == "mastersandi":
+    if "username" not in session or session["username"] == "${admin}":
         return redirect("/login")
     username = session["username"]
     db = get_db()
@@ -276,10 +278,11 @@ def create_account():
     # Simpan data session ke dalam database
     try:
         cursor.execute(
-            "INSERT INTO user_sessions (username, device, protocol, expired, output) VALUES (?, ?, ?, ?, ?)",
-            (username, device, protocol, expired, output)
+            "INSERT INTO user_sessions (operator, username, device, protocol, expired, output) VALUES (?, ?, ?, ?, ?, ?)",
+            (active_user, username, device, protocol, expired, output)
         )
         db.commit()
+
     except Exception as e:
         print(f"Error saat menyimpan session: {e}")
         # Anda bisa menambahkan flash atau logging error di sini jika diperlukan
@@ -319,17 +322,17 @@ def riwayat():
     if 'username' not in session:
         flash("Silahkan login terlebih dahulu", "error")
         return redirect('/login')
-
-    # Ambil data user session dari database
+    
+    active_user = session['username']
     db = get_db()
     cursor = db.cursor()
-    cursor.execute("SELECT * FROM user_sessions ORDER BY created_at DESC")
+    # Mengambil data session berdasarkan operator yang login
+    cursor.execute(
+        "SELECT * FROM user_sessions WHERE operator = ? ORDER BY created_at DESC", 
+        (active_user,)
+    )
     sessions_data = cursor.fetchall()
-
-    # Render template 'riwayat.html' dengan data sessions
-    return render_template("riwayat.html", sessions=sessions_data)
-
-
+    return render_template('riwayat.html', sessions=sessions_data)
 #------------- add & delete server -----------
 
 # Lokasi file server.json
@@ -511,6 +514,9 @@ def delete_package(package_name):
 # Route untuk form tambah saldo
 @app.route("/add_balance", methods=["GET", "POST"])
 def add_balance():
+    db = get_db()
+    cursor = db.cursor()
+
     if request.method == "POST":
         username = request.form.get("username")
         balance_to_add = request.form.get("balance")
@@ -528,8 +534,6 @@ def add_balance():
             flash("Jumlah saldo harus berupa angka.", "error")
             return redirect("/add_balance")
 
-        db = get_db()
-        cursor = db.cursor()
         cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
         user = cursor.fetchone()
 
@@ -543,7 +547,14 @@ def add_balance():
 
         return redirect("/add_balance")
 
-    return render_template("add_balance.html")
+    # Untuk method GET, query semua username dari tabel users
+    cursor.execute("SELECT username FROM users")
+    # Jika cursor.fetchall() mengembalikan list of tuples, Anda bisa melakukan:
+    users = [dict(row) for row in cursor.fetchall()]
+    # Atau jika sudah dikonfigurasi agar mengembalikan dict, cukup:
+    # users = cursor.fetchall()
+
+    return render_template("add_balance.html", users=users)
 
 #------------- Home Template -----------
 #Fungsi untuk memeriksa status VPS (ping)
@@ -887,7 +898,7 @@ def logout():
 
 if __name__ == "__main__":
     init_db()
-    app.run(host="0.0.0.0", port=${port})
+    app.run(host="0.0.0.0", port=${port})       
 EOL
 
 
