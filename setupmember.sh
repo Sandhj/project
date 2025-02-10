@@ -337,7 +337,7 @@ def riwayat():
 #------------- add & delete server -----------
 
 # Lokasi file server.json
-SERVER_FILE = "/root/project/server.json"
+SERVER_FILE = "/root/${member}/server.json"
 
 def load_servers():
     """Load servers from the JSON file."""
