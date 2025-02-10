@@ -11,6 +11,7 @@ apt install python3.11-venv
 
 mkdir -p /root/project/templates
 mkdir -p /root/project/backup
+mkdir -p/root/project/static
 
 cd
 cd /root/project/
@@ -34,7 +35,6 @@ wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/dash_adm
 wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/dash_guest.html
 wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/delete_account.html
 wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/delete_server.html
-wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/deposit.html
 wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/home.html
 wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/kurangi_saldo.html
 wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/list_xl.html
@@ -43,6 +43,10 @@ wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/register
 wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/result.html
 wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/riwayat.html
 wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/users.html
+
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/deposit/deposit_form.html
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/templates/deposit/payment_confirmation.html
+
 
 cd
 cd /root/project
