@@ -1,178 +1,345 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Balance</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f4f4f4;
-            margin-top: 75px;
-            padding: 0;
-        }
-        h1 {
-            text-align: center;
-            margin-top: 20px;
-            color: #333;
-            font-size: 28px;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Balance</title>
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+  />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f4f4f4;
+      margin-top: 75px;
+      padding: 0;
+    }
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+      color: #333;
+      font-size: 28px;
+    }
 
-        /* Toast Notifications */
-        .toast-container {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            z-index: 1000;
-        }
-        .toast {
-            display: flex;
-            align-items: center;
-            background-color: #333;
-            color: #fff;
-            padding: 12px;
-            border-radius: 8px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-            margin-bottom: 10px;
-            opacity: 0;
-            transform: translateX(100%);
-            transition: opacity 0.5s ease, transform 0.5s ease;
-        }
-        .toast.show {
-            opacity: 1;
-            transform: translateX(0);
-        }
-        .toast.success { background-color: #28a745; }
-        .toast.error { background-color: #dc3545; }
-        .toast i {
-            margin-right: 10px;
-        }
+    /* Toast Notifications */
+    .toast-container {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      z-index: 1000;
+    }
+    .toast {
+      display: flex;
+      align-items: center;
+      background-color: #333;
+      color: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      margin-bottom: 10px;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .toast.success {
+      background-color: #28a745;
+    }
+    .toast.error {
+      background-color: #dc3545;
+    }
+    .toast i {
+      margin-right: 10px;
+    }
 
-        /* Form Styling */
-        form {
-            width: 320px;
-            margin: 40px auto;
-            background: #fff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        label {
-            font-size: 14px;
-            font-weight: 500;
-            color: #555;
-            margin-bottom: 8px;
-            display: block;
-        }
-        input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-sizing: border-box;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
-        }
-        button:hover {
-            background-color: #2980b9;
-        }
-        a {
-            display: block;
-            text-align: center;
-            margin-top: 15px;
-            text-decoration: none;
-            color: #3498db;
-            font-size: 14px;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .form-header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .form-header i {
-            font-size: 36px;
-            color: #3498db;
-            margin-bottom: 10px;
-        }
-
-    </style>
+    /* Form Styling */
+    form {
+      width: 320px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #555;
+      margin-bottom: 8px;
+      display: block;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+    button[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+    button[type="submit"]:hover {
+      background-color: #2980b9;
+    }
+    a {
+      display: block;
+      text-align: center;
+      margin-top: 15px;
+      text-decoration: none;
+      color: #3498db;
+      font-size: 14px;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .form-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .form-header i {
+      font-size: 36px;
+      color: #3498db;
+      margin-bottom: 10px;
+    }
+    .preset-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .preset-buttons .preset {
+      flex: 1;
+      padding: 10px;
+      background-color: #e0e0e0;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+    .preset-buttons .preset:hover {
+      background-color: #ccc;
+    }
+    /* Custom Dropdown Styles */
+    .custom-dropdown {
+      position: relative;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    .custom-dropdown input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+    .dropdown-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      max-height: 200px;
+      overflow-y: auto;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-top: none;
+      z-index: 100;
+      display: none;
+    }
+    .dropdown-list.active {
+      display: block;
+    }
+    .dropdown-item {
+      padding: 10px;
+      cursor: pointer;
+    }
+    .dropdown-item:hover {
+      background-color: #f4f4f4;
+    }
+  </style>
 </head>
 <body>
+  <h1>
+    <i class="fas fa-wallet"></i> Add Balance
+  </h1>
 
-    <h1><i class="fas fa-wallet"></i> Add Balance</h1>
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
 
-    <!-- Toast Notification Container -->
-    <div id="toast-container" class="toast-container"></div>
+  <!-- Flash Messages (Flask) -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul style="display: none;">
+        {% for category, message in messages %}
+          <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
 
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
+  <!-- Form to Add Balance -->
+  <form method="POST">
+    <div class="form-header">
+      <p>Add funds to a user's account</p>
+    </div>
+
+    <!-- Custom Dropdown untuk Username -->
+    <label for="dropdownInput">Select Username:</label>
+    <div class="custom-dropdown" id="customDropdown">
+      <!-- Input tampilan untuk pencarian -->
+      <input
+        type="text"
+        placeholder="Pilih username"
+        id="dropdownInput"
+        autocomplete="off"
+      />
+      <!-- Daftar username yang akan difilter -->
+      <div class="dropdown-list" id="dropdownList">
+        {% for user in users %}
+          <div class="dropdown-item" data-value="{{ user.username }}">
+            {{ user.username }}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    <!-- Input tersembunyi untuk menyimpan nilai username yang dipilih -->
+    <input type="hidden" name="username" id="username" required />
+
+    <!-- Input Balance dengan format dan preset -->
+    <label for="balance">Balance to Add:</label>
+    <input type="text" name="balance" id="balance" placeholder="Enter amount" required inputmode="numeric">
+
+
+    <!-- Preset Buttons untuk nominal -->
+    <div class="preset-buttons">
+      <button type="button" class="preset" data-value="5000">5,000</button>
+      <button type="button" class="preset" data-value="10000">10,000</button>
+      <button type="button" class="preset" data-value="15000">15,000</button>
+      <button type="button" class="preset" data-value="25000">25,000</button>
+      <button type="button" class="preset" data-value="50000">50,000</button>
+      <button type="button" class="preset" data-value="100000">100,000</button>
+    </div>
+
+    <button type="submit">
+      <i class="fas fa-plus-circle"></i> Add Balance
+    </button>
+  </form>
+
+  <script>
+    // Fungsi untuk menampilkan toast notifications
+    function showToast(message, type) {
+      const toastContainer = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.classList.add("toast", "show", type);
+      toast.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
+      toastContainer.appendChild(toast);
+      // Hapus toast setelah 4 detik
+      setTimeout(() => {
+        toast.classList.remove("show");
+        setTimeout(() => {
+          toast.remove();
+        }, 500);
+      }, 4000);
+    }
+
+    // Tampilkan flash message Flask sebagai Toast saat halaman dimuat
+    window.onload = function() {
+      {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <ul style="display: none;">
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
-                {% endfor %}
-            </ul>
+          {% for category, message in messages %}
+            showToast("{{ message }}", "{{ category }}");
+          {% endfor %}
         {% endif %}
-    {% endwith %}
+      {% endwith %}
+    };
 
-    <!-- Form to Add Balance -->
-    <form method="POST">
-        <div class="form-header">
-            <p>Add funds to a user's account</p>
-        </div>
-        <label for="username">Enter Username:</label>
-        <input type="text" name="username" id="username" placeholder="Enter username" required>
-        <label for="balance">Balance to Add:</label>
-        <input type="number" name="balance" id="balance" placeholder="Enter amount" required>
-        <button type="submit"><i class="fas fa-plus-circle"></i> Add Balance</button>
-    </form>
+    // Custom Dropdown untuk Username
+    document.addEventListener("DOMContentLoaded", function () {
+      const dropdownInput = document.getElementById("dropdownInput");
+      const dropdownList = document.getElementById("dropdownList");
+      const dropdownItems = dropdownList.getElementsByClassName("dropdown-item");
+      const hiddenUsername = document.getElementById("username");
 
-    <script>
-        // Fungsi untuk menampilkan toast
-        function showToast(message, type) {
-            const toastContainer = document.getElementById("toast-container");
-            const toast = document.createElement("div");
-            toast.classList.add("toast", "show", type);
-            toast.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
-            toastContainer.appendChild(toast);
+      // Toggle tampilan dropdown saat input diklik
+      dropdownInput.addEventListener("click", function (e) {
+        dropdownList.classList.toggle("active");
+      });
 
-            // Hapus toast setelah 4 detik
-            setTimeout(() => {
-                toast.classList.remove("show");
-                setTimeout(() => {
-                    toast.remove();
-                }, 500);
-            }, 4000);
+      // Filter opsi berdasarkan input
+      dropdownInput.addEventListener("input", function (e) {
+        const filter = this.value.toLowerCase();
+        Array.from(dropdownItems).forEach((item) => {
+          if (item.textContent.toLowerCase().includes(filter)) {
+            item.style.display = "block";
+          } else {
+            item.style.display = "none";
+          }
+        });
+        dropdownList.classList.add("active");
+      });
+
+      // Ketika salah satu opsi diklik, isi input tampilan dan input tersembunyi
+      Array.from(dropdownItems).forEach((item) => {
+        item.addEventListener("click", function (e) {
+          dropdownInput.value = this.textContent;
+          hiddenUsername.value = this.getAttribute("data-value");
+          dropdownList.classList.remove("active");
+        });
+      });
+
+      // Menutup dropdown jika klik di luar area dropdown
+      document.addEventListener("click", function (e) {
+        const customDropdown = document.getElementById("customDropdown");
+        if (!customDropdown.contains(e.target)) {
+          dropdownList.classList.remove("active");
         }
+      });
+    });
 
-        // Menampilkan pesan Flask sebagai Toast saat halaman dimuat
-        window.onload = function() {
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        showToast("{{ message }}", "{{ category }}");
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-        };
-    </script>
+    // Format input balance: menambahkan koma sebagai pemisah ribuan
+    document.getElementById("balance").addEventListener("input", function (e) {
+      let value = this.value.replace(/,/g, "").replace(/\D/g, "");
+      if (value) {
+        this.value = Number(value).toLocaleString("en-US");
+      } else {
+        this.value = "";
+      }
+    });
 
+    // Event listener untuk tombol preset balance
+    document.querySelectorAll(".preset").forEach((button) => {
+      button.addEventListener("click", function () {
+        const presetValue = this.getAttribute("data-value");
+        document.getElementById("balance").value = Number(presetValue).toLocaleString("en-US");
+      });
+    });
+
+    // Sebelum form disubmit, hapus koma agar nilai yang dikirim murni angka
+    document.querySelector("form").addEventListener("submit", function (e) {
+      const balanceInput = document.getElementById("balance");
+      balanceInput.value = balanceInput.value.replace(/,/g, "");
+    });
+  </script>
 </body>
 </html>
