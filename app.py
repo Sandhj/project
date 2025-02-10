@@ -612,106 +612,42 @@ def get_status():
     
     return jsonify(vps_list)
 
-
-# ---------------Fungsi Create FREE VPN Account-----------
-
-
-@app.route('/vpn_free_temp', methods=['GET', 'POST'])
-def vpn_free_temp():
-    return render_template('vpn_free.html')
-
-@app.route('/vpn_free', methods=['POST'])
-def vpn_free():
-    if request.method == 'POST':
-        # Ambil data dari form
-        protocol = request.form['protocol']
-        device = request.form['device']
-        username = request.form['username']
-        expired = request.form['expired']
-
-        # Debugging: Log data yang diterima dari form
-        print(f"Received data - Protocol: {protocol}, Device: {device}, Username: {username}, Expired: {expired}")
-
-        # Konfigurasi koneksi ke VPS lain
-        remote_host = "IP_VPS_FREE"
-        remote_port = 22
-        remote_user = "root"
-        remote_password = "@1Vpsbysan"
-
-        try:
-            # Membuat koneksi SSH
-            ssh = paramiko.SSHClient()
-            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(hostname=remote_host, port=remote_port, username=remote_user, password=remote_password)
-
-            # Menjalankan perintah di VPS lain
-            command = f"echo -e '{username}\n{expired}' | /usr/bin/create_{protocol}"
-            stdin, stdout, stderr = ssh.exec_command(command, get_pty=True)
-
-            # Membaca output dan error dari perintah yang dijalankan
-            output = stdout.read().decode().strip()  # Output dari VPS
-            error = stderr.read().decode().strip()  # Error dari VPS
-
-            # Debugging: Log output dan error
-            print(f"Output: {output}")
-            print(f"Error: {error}")
-
-            ssh.close()
-
-            # Jika ada error, tampilkan di hasil render
-            if error:
-                return render_template(
-                    'result.html',
-                    username=username,
-                    device=device,
-                    expired=expired,
-                    protocol=protocol,
-                    output=f"Error: {error}"
-                )
-
-            # Jika berhasil, kirim output ke template
-            return render_template(
-                'result.html',
-                username=username,
-                device=device,
-                expired=expired,
-                protocol=protocol,
-                output=output
-            )
-        except Exception as e:
-            # Jika terjadi error dalam koneksi SSH
-            print(f"SSH connection error: {str(e)}")
-            return render_template(
-                'result.html',
-                username=username,
-                device=device,
-                expired=expired,
-                protocol=protocol,
-                output=f"SSH connection error: {str(e)}"
-            )
-
 #--------------- Fungsi Deposit -----------
-# Route utama untuk menampilkan form HTML
-@app.route('/deposit', methods=['GET'])
+# Konfigurasi bot Telegram
+TELEGRAM_BOT_TOKEN = '7360190308:AAH79nXyUiU4TRscBtYRLg14WVNfi1q1T1M'
+TELEGRAM_CHAT_ID = '576495165'
+bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN, parse_mode=None)
+
+@app.route('/', methods=['GET', 'POST'])
 def deposit():
-    return render_template('deposit.html')  # Pastikan file HTML disimpan di folder "templates"
+    if request.method == 'POST':
+        username = request.form['username']
+        amount = request.form['amount']
+        return render_template('payment_confirmation.html', username=username, amount=amount)
+    return render_template('deposit_form.html')
 
-# Route untuk memproses data dari form
-@app.route('/process', methods=['POST'])
-def process_form():
-    username = request.form.get('username')
-    deposit_amount = request.form.get('depositAmount')
+@app.route('/confirm', methods=['POST'])
+def confirm():
+    username = request.form['username']
+    amount = request.form['amount']
+    proof = request.files['proof']
 
-    if username and deposit_amount:
-        # Format pesan untuk WhatsApp
-        message = f"PERMINTAAN DEPOSIT\nUsername: {username}\nJumlah Deposit: {deposit_amount}"
-        encoded_message = urllib.parse.quote(message)
-        whatsapp_url = f"https://wa.me/6285155208019?text={encoded_message}"
+    if proof:
+        proof_path = os.path.join('static', proof.filename)
+        proof.save(proof_path)
 
-        return redirect(whatsapp_url)
+        # Kirim pesan ke bot Telegram
+        message = f"Permintaan Deposit.\nUsername: {username}\nJumlah: {amount}"
+        with open(proof_path, 'rb') as photo:
+            bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+            bot.send_photo(chat_id=TELEGRAM_CHAT_ID, photo=photo)
+
+        flash('Permintaan deposit telah berhasil dikirim ke admin.', 'success')
+        return redirect(url_for('deposit'))
     else:
-        return jsonify({"error": "Harap isi semua data!"}), 400
-
+        flash('Harap unggah bukti transfer.', 'danger')
+        return redirect(url_for('deposit'))
+        
 #------------------- Fungsi Delete Account -------------
 FILE_PATH_DELETE = "/usr/local/etc/xray/config/04_inbounds.json"
 
