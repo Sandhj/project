@@ -615,6 +615,7 @@ def get_status():
     return jsonify(vps_list)
 
 #--------------- Fungsi Deposit -----------
+
 # Konfigurasi bot Telegram
 TELEGRAM_BOT_TOKEN = '7360190308:AAH79nXyUiU4TRscBtYRLg14WVNfi1q1T1M'
 TELEGRAM_CHAT_ID = '576495165'
@@ -649,7 +650,7 @@ def confirm():
     else:
         flash('Harap unggah bukti transfer.', 'danger')
         return redirect(url_for('deposit'))
-        
+
 #------------------- Fungsi Delete Account -------------
 FILE_PATH_DELETE = "/usr/local/etc/xray/config/04_inbounds.json"
 
