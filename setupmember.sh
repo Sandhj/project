@@ -877,6 +877,7 @@ source web/bin/activate
 pip install flask
 pip install requests
 pip install paramiko
+pip install pyTelegramBotAPI
 deactivate
 
 cd
