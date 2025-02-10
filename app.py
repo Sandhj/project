@@ -620,7 +620,7 @@ TELEGRAM_BOT_TOKEN = '7360190308:AAH79nXyUiU4TRscBtYRLg14WVNfi1q1T1M'
 TELEGRAM_CHAT_ID = '576495165'
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN, parse_mode=None)
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/deposit', methods=['GET', 'POST'])
 def deposit():
     if request.method == 'POST':
         username = request.form['username']
