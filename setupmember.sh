@@ -841,6 +841,7 @@ EOL
 
 
 wget -q https://raw.githubusercontent.com/Sandhj/project/main/server.json
+wget -q https://raw.githubusercontent.com/Sandhj/project/main/forgot_pass.py
 
 cat <<EOL > /root/${member}/run.sh
 #!/bin/bash
